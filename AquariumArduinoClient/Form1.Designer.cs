@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.btnDetectComPort = new System.Windows.Forms.Button();
             this.lblComPort = new System.Windows.Forms.Label();
             this.btnStop = new System.Windows.Forms.Button();
@@ -141,8 +142,9 @@
             this.Controls.Add(this.btnStop);
             this.Controls.Add(this.lblComPort);
             this.Controls.Add(this.btnDetectComPort);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "Form1";
-            this.Text = "Form1";
+            this.Text = "Aquarium Arduino Client";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.ResumeLayout(false);
             this.PerformLayout();
