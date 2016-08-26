@@ -1,0 +1,11 @@
+C:\Projects\AquariumArduinoClient\AquariumArduinoClient\bin\Debug\AquariumArduinoClient.exe.config
+C:\Projects\AquariumArduinoClient\AquariumArduinoClient\bin\Debug\AquariumArduinoClient.exe
+C:\Projects\AquariumArduinoClient\AquariumArduinoClient\bin\Debug\AquariumArduinoClient.pdb
+C:\Projects\AquariumArduinoClient\AquariumArduinoClient\obj\Debug\AquariumArduinoClient.csprojResolveAssemblyReference.cache
+C:\Projects\AquariumArduinoClient\AquariumArduinoClient\obj\Debug\AquariumArduinoClient.Form1.resources
+C:\Projects\AquariumArduinoClient\AquariumArduinoClient\obj\Debug\AquariumArduinoClient.Properties.Resources.resources
+C:\Projects\AquariumArduinoClient\AquariumArduinoClient\obj\Debug\AquariumArduinoClient.csproj.GenerateResource.Cache
+C:\Projects\AquariumArduinoClient\AquariumArduinoClient\obj\Debug\AquariumArduinoClient.exe
+C:\Projects\AquariumArduinoClient\AquariumArduinoClient\obj\Debug\AquariumArduinoClient.pdb
+C:\Projects\AquariumArduinoClient\AquariumArduinoClient\bin\Debug\CommandMessenger.dll
+C:\Projects\AquariumArduinoClient\AquariumArduinoClient\bin\Debug\CommandMessenger.Transport.Serial.dll

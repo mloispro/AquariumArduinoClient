@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25123.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AquariumArduinoClient", "AquariumArduinoClient\AquariumArduinoClient.csproj", "{EAF9BF85-9B63-471F-AE3E-FBF00BCC49DB}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "lib", "lib", "{BF1CE1D8-F4EA-420F-8507-36321E9D3F6A}"
+	ProjectSection(SolutionItems) = preProject
+		lib\CommandMessenger.dll = lib\CommandMessenger.dll
+		lib\CommandMessenger.Transport.Serial.dll = lib\CommandMessenger.Transport.Serial.dll
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EAF9BF85-9B63-471F-AE3E-FBF00BCC49DB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EAF9BF85-9B63-471F-AE3E-FBF00BCC49DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EAF9BF85-9B63-471F-AE3E-FBF00BCC49DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EAF9BF85-9B63-471F-AE3E-FBF00BCC49DB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
