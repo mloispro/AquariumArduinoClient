@@ -1,6 +1,6 @@
 ﻿namespace AquariumArduinoClient
 {
-    partial class Form1
+    partial class MainForm
     {
         /// <summary>
         /// Required designer variable.
@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.btnDetectComPort = new System.Windows.Forms.Button();
             this.lblComPort = new System.Windows.Forms.Label();
             this.btnStop = new System.Windows.Forms.Button();
@@ -38,6 +38,8 @@
             this.tbLowPH = new System.Windows.Forms.MaskedTextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.tbHighPH = new System.Windows.Forms.MaskedTextBox();
+            this.label3 = new System.Windows.Forms.Label();
+            this.tbOffset = new System.Windows.Forms.MaskedTextBox();
             this.SuspendLayout();
             // 
             // btnDetectComPort
@@ -128,11 +130,32 @@
             this.tbHighPH.TabIndex = 8;
             this.tbHighPH.TextChanged += new System.EventHandler(this.tbHighPH_TextChanged);
             // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(388, 96);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(35, 13);
+            this.label3.TabIndex = 9;
+            this.label3.Text = "Offset";
+            // 
+            // tbOffset
+            // 
+            this.tbOffset.Location = new System.Drawing.Point(439, 96);
+            this.tbOffset.Mask = "0.0";
+            this.tbOffset.Name = "tbOffset";
+            this.tbOffset.Size = new System.Drawing.Size(27, 20);
+            this.tbOffset.TabIndex = 10;
+            this.tbOffset.TextChanged += new System.EventHandler(this.tbOffset_TextChanged);
+            this.tbOffset.Leave += new System.EventHandler(this.tbOffset_Leave);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(584, 312);
+            this.Controls.Add(this.tbOffset);
+            this.Controls.Add(this.label3);
             this.Controls.Add(this.tbHighPH);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.tbLowPH);
@@ -162,6 +185,8 @@
         private System.Windows.Forms.MaskedTextBox tbLowPH;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.MaskedTextBox tbHighPH;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.MaskedTextBox tbOffset;
     }
 }
 

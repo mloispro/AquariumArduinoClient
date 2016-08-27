@@ -16,19 +16,20 @@ using CommandMessenger.Transport.Serial;
 using AquariumArduinoClient.Controls;
 using System.Net.Mail;
 using System.Net;
+using AquariumArduinoClient.Utilities;
 
 namespace AquariumArduinoClient
 {
-    public partial class Form1 : Form
+    public partial class MainForm : Form
     {
-        // private SerialPort _currentPort;
+        private Settings _settings; 
+        private bool _isConnected;
         private SerialTransport _serialTransport;
         private CmdMessenger _cmdMessenger;
         private bool _arduinoFound;
         private string _arduinoPort;
-        private double _phLowValue = 6.2;
-        private double _phHighValue = 6.9;
         private DateTime _alertLastSent;
+        //private DateTime _lastCommTime;
 
         enum Command
         {
@@ -36,15 +37,22 @@ namespace AquariumArduinoClient
             Error,
             StartLogging,
             SendPH,
+            SetPHOffset,
+            SetPHOffsetResult
         };
 
-        public Form1()
+        public MainForm()
         {
             InitializeComponent();
-            tbLowPH.Text = _phLowValue.ToString();
-            tbHighPH.Text = _phHighValue.ToString();
+            _settings = Settings.Get();
+
+            tbLowPH.Text = _settings.PHSettings.LowValue.ToString();
+            tbHighPH.Text = _settings.PHSettings.HighValue.ToString();
+            tbOffset.Text = _settings.PHSettings.Offset.ToString();
             lblPH.Text = "PH: Not Connected!";
             lblPH.ForeColor = Color.Red;
+            //BackgroundWorker bw = new BackgroundWorker();
+            
         }
 
 
@@ -180,6 +188,7 @@ namespace AquariumArduinoClient
 
             // Send command
             _cmdMessenger.SendCommand(command);
+            _isConnected = true;
         }
 
         // Exit function
@@ -224,6 +233,8 @@ namespace AquariumArduinoClient
                     }
                 }
             }
+            _isConnected = false;
+            Settings.Save(_settings);
         }
 
         /// Attach command call backs. 
@@ -270,12 +281,12 @@ namespace AquariumArduinoClient
             //todo: log and display data
             lblPH.Text = "PH: " + phVal;
             lblPH.ForeColor = Color.Green;
-            if (phVal > _phHighValue)
+            if (phVal > _settings.PHSettings.HighValue)
             {
                 SendAlert("PH is High! - " + phVal, DateTime.Now.ToString() + " PH: " + phVal);
                 lblPH.ForeColor = Color.Red;
             }
-            if (phVal < _phLowValue)
+            if (phVal < _settings.PHSettings.LowValue)
             {
                 SendAlert("PH is Low! - " + phVal, DateTime.Now.ToString() + " PH: " + phVal);
                 lblPH.ForeColor = Color.Red;
@@ -360,81 +371,54 @@ namespace AquariumArduinoClient
 
         private void tbLowPH_TextChanged(object sender, EventArgs e)
         {
-            _phLowValue = double.Parse(tbLowPH.Text);
+            _settings.PHSettings.LowValue = double.Parse(tbLowPH.Text);
+            Settings.Save(_settings);
         }
 
         private void tbHighPH_TextChanged(object sender, EventArgs e)
         {
-            _phHighValue = double.Parse(tbHighPH.Text);
+            _settings.PHSettings.HighValue = double.Parse(tbHighPH.Text);
+            Settings.Save(_settings);
         }
-        //---------old stuff------
-        //private void ListenForData()
-        //{
-        //    _currentPort.Open();
-        //    if (_currentPort.IsOpen)
-        //    {
-        //    }
-        //}
-        //private bool FindComPort()
-        //{
-        //    try
-        //    {
-        //        string[] ports = SerialPort.GetPortNames();
-        //        foreach (string port in ports)
-        //        {
-        //            _currentPort = new SerialPort(port, 9600);
-        //            if (DetectArduino())
-        //                return true;
-        //        }
 
-        //    }
-        //    catch (Exception e)
-        //    {
-        //    }
-        //    return false;
-        //}
-        //private bool DetectArduino()
-        //{
-        //    try
-        //    {
-        //        //The below setting are for the Hello handshake
-        //        byte[] buffer = new byte[5];
-        //        buffer[0] = Convert.ToByte(16);
-        //        buffer[1] = Convert.ToByte(128);
-        //        buffer[2] = Convert.ToByte(0);
-        //        buffer[3] = Convert.ToByte(0);
-        //        buffer[4] = Convert.ToByte(4);
-        //        int intReturnASCII = 0;
-        //        char charReturnValue = (Char)intReturnASCII;
-        //        _currentPort.Open();
-        //        _currentPort.Write(buffer, 0, 5);
-        //        Thread.Sleep(1000);
-        //        int count = _currentPort.BytesToRead;
-        //        string returnMessage = "";
-        //        while (count > 0)
-        //        {
-        //            intReturnASCII = _currentPort.ReadByte();
-        //            returnMessage = returnMessage + Convert.ToChar(intReturnASCII);
-        //            count--;
-        //        }
-        //        //ComPort.name = returnMessage;
-        //        _currentPort.Close();
-        //        if (returnMessage.Contains("HELLO FROM ARDUINO"))
-        //        {
-        //            return true;
-        //        }
-        //        else
-        //        {
-        //            return false;
-        //        }
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        return false;
-        //    }
-        //}
+        private void tbOffset_TextChanged(object sender, EventArgs e)
+        {
 
+        }
+        private void tbOffset_Leave(object sender, EventArgs e)
+        {
+            var offsetString = tbOffset.Text;
+            double offset = Convert.ToDouble(offsetString);
+            _settings.PHSettings.Offset = offset;
 
+            Settings.Save(_settings);
+
+            if (!_isConnected) return;
+            // Create command FloatAddition, which will wait for a return command FloatAdditionResult
+            var command = new SendCommand((int)Command.SetPHOffset, (int)Command.SetPHOffsetResult, 1000); 
+
+            
+
+            command.AddArgument((float)offset);
+            
+            // Send command
+            var cmdResult = _cmdMessenger.SendCommand(command);
+
+            // Check if received a (valid) response
+            if (cmdResult.Ok)
+            {
+                // Read returned argument
+                var returnedOffset = cmdResult.ReadFloatArg();
+                if (Math.Round(returnedOffset, 2) != Math.Round(offset, 2))
+                    LogCommand("Returned Offset doesnt match: " + returnedOffset);
+
+            }
+            else
+                LogCommand("No response!");
+
+            // Stop running loop
+            //RunLoop = false;
+        }
     }
 }
     
