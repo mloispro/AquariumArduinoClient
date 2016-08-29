@@ -52,18 +52,22 @@ namespace AquariumArduinoClient.Utilities
             }
             return isDirectory;
         }
-        public static void FileClose(FileStream file)
+        public async static Task FileClose(FileStream file)
         {
             file.Close();
-            EnsureFileClosed(file.Name);
+            await EnsureFileClosed(file.Name);
         }
-        public static void EnsureFileClosed(string filename)
+        public async static Task EnsureFileClosed(string filename)
         {
-            while (!FileIO.IsFileClosed(filename))
+            bool isClosed = false;
+            while (!isClosed)
             {
-                Task.Delay(300).Wait();
+                isClosed = FileIO.IsFileClosed(filename);
+                //Task.Delay(300).Wait();
+                await Task.Delay(300);
             }
         }
+        //public async static Task<bool> IsFileClosed(string filename)
         public static bool IsFileClosed(string filename)
         {
             try

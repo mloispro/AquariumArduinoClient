@@ -26,10 +26,9 @@ namespace AquariumArduinoClient
         private bool _isConnected;
         private SerialTransport _serialTransport;
         private CmdMessenger _cmdMessenger;
-        private bool _arduinoFound;
-        private string _arduinoPort;
+        private static ConnectionManager _connectionManager;
         private DateTime _alertLastSent;
-        //private DateTime _lastCommTime;
+        private const string CommunicationIdentifier = "WaterSensors";
 
         enum Command
         {
@@ -38,7 +37,8 @@ namespace AquariumArduinoClient
             StartLogging,
             SendPH,
             SetPHOffset,
-            SetPHOffsetResult
+            SetPHOffsetResult,
+            Identify,           // Command to identify device
         };
 
         public MainForm()
@@ -51,8 +51,8 @@ namespace AquariumArduinoClient
             tbOffset.Text = _settings.PHSettings.Offset.ToString();
             lblPH.Text = "PH: Not Connected!";
             lblPH.ForeColor = Color.Red;
-            //BackgroundWorker bw = new BackgroundWorker();
-            
+            SetupComm();
+
         }
 
 
@@ -66,82 +66,18 @@ namespace AquariumArduinoClient
         private void btnDetectComPort_Click(object sender, EventArgs e)
         {
             tbCmdLog.Text = "";
-            //FindComPort();
-            //SetupComm();
-            bool portFound = FindComPort();
+         
             CloseComm();
+            SetupComm();
+
             lblComPort.Text = "Arduino Port: Not Found";
-            if (portFound)
-            {
-                lblComPort.Text = "Arduino Port: " + _arduinoPort;
-                SetupComm();
-            }
+            //if (portFound)
+            //{
+            //    lblComPort.Text = "Arduino Port: " + _arduinoPort;
+            //    SetupComm();
+            //}
         }
 
-        
-        private bool FindComPort()
-        {
-            try
-            {
-                string[] ports = SerialPort.GetPortNames();
-                foreach (string port in ports)
-                {
-                    //_currentPort = new SerialPort(port, 9600);
-                    FindArduino(port);
-                    if (_arduinoFound)
-                    {
-                        _arduinoPort = port;
-                        return true;
-                    }
-                   
-                }
-
-            }
-            catch (Exception e)
-            {
-            }
-            return false;
-        }
-        private void FindArduino(string port)
-        {
-            _serialTransport = new SerialTransport
-            {
-                CurrentSerialSettings = { PortName = port, BaudRate = 9600, DtrEnable = false } // object initializer
-            };
-
-            // Initialize the command messenger with the Serial Port transport layer
-            // Set if it is communicating with a 16- or 32-bit Arduino board
-            _cmdMessenger = new CmdMessenger(_serialTransport, BoardType.Bit16);
-
-            // Tell CmdMessenger to "Invoke" commands on the thread running the WinForms UI
-            _cmdMessenger.ControlToInvokeOn = this;
-
-            // Set Received command strategy that removes commands that are older than 1 sec
-            _cmdMessenger.AddReceiveCommandStrategy(new StaleGeneralStrategy(1000));
-
-            // Attach the callbacks to the Command Messenger
-            AttachCommandCallBacks();
-
-            // Attach to NewLinesReceived for logging purposes
-            _cmdMessenger.NewLineReceived += NewLineReceived;
-
-            // Attach to NewLineSent for logging purposes
-            _cmdMessenger.NewLineSent += NewLineSent;
-
-            //_cmdMessenger.Attach((int)Command.Acknowledge, OnAcknowledge);
-
-            // Start listening
-           bool connected = _cmdMessenger.Connect();
-            if (!connected) return;
-            // Send command to start sending data
-            var command = new SendCommand((int)Command.StartLogging);
-
-            // Send command
-            var receiveCommand = _cmdMessenger.SendCommand(command);
-            WaitSeconds(2);
-           // _arduinoFound = receiveCommand.Ok;
-            //CloseComm();
-        }
         private void WaitSeconds(int seconds)
         {
             if (seconds < 1) return;
@@ -153,26 +89,73 @@ namespace AquariumArduinoClient
         }
         private void SetupComm()
         {
-    
+
             // Create Serial Port object
             // Note that for some boards (e.g. Sparkfun Pro Micro) DtrEnable may need to be true.
-            _serialTransport = new SerialTransport
-            {
-                CurrentSerialSettings = { PortName = _arduinoPort, BaudRate = 9600, DtrEnable = false } // object initializer
-            };
+            _serialTransport = new SerialTransport { CurrentSerialSettings = { DtrEnable = false } };
 
             // Initialize the command messenger with the Serial Port transport layer
             // Set if it is communicating with a 16- or 32-bit Arduino board
-            _cmdMessenger = new CmdMessenger(_serialTransport, BoardType.Bit16);
+            _cmdMessenger = new CmdMessenger(_serialTransport, BoardType.Bit16)
+            {
+                PrintLfCr = false // Do not print newLine at end of command, to reduce data being sent
+            };
 
             // Tell CmdMessenger to "Invoke" commands on the thread running the WinForms UI
             _cmdMessenger.ControlToInvokeOn = this;
 
             // Set Received command strategy that removes commands that are older than 1 sec
-            _cmdMessenger.AddReceiveCommandStrategy(new StaleGeneralStrategy(1000));
+            _cmdMessenger.AddReceiveCommandStrategy(new StaleGeneralStrategy(8000));
 
             // Attach the callbacks to the Command Messenger
             AttachCommandCallBacks();
+
+            // The Connection manager is capable or storing connection settings, in order to reconnect more quickly  
+            // the next time the application is run. You can determine yourself where and how to store the settings
+            // by supplying a class, that implements ISerialConnectionStorer. For convenience, CmdMessenger provides
+            //  simple binary file storage functionality
+            var serialConnectionStorer = new SerialConnectionStorer("SerialConnectionManagerSettings.cfg");
+
+            // We don't need to provide a handler for the Identify command - this is a job for Connection Manager.
+            _connectionManager = new SerialConnectionManager(
+                _serialTransport as SerialTransport,
+                _cmdMessenger,
+                (int)Command.Identify,
+                CommunicationIdentifier,
+                serialConnectionStorer)
+            {
+                // Enable watchdog functionality.
+                WatchdogEnabled = true,
+
+                // Instead of scanning for the connected port, you can disable scanning and only try the port set in CurrentSerialSettings
+                //DeviceScanEnabled = false
+            };
+
+            // Show all connection progress on command line             
+            _connectionManager.Progress += (sender, eventArgs) =>
+            {
+                // If you want to reduce verbosity, you can only show events of level <=2 or ==1
+                if (eventArgs.Level <= 3) LogCommand(eventArgs.Description);
+            };
+
+            // If connection found, tell the arduino to turn the (internal) led on
+            _connectionManager.ConnectionFound += (sender, eventArgs) =>
+            {
+                // Create command
+                var command = new SendCommand((int)Command.StartLogging);
+                // Send command
+                _cmdMessenger.SendCommand(command);
+                lblComPort.Text = "Arduino Port: " + _serialTransport.CurrentSerialSettings.PortName;
+            };
+
+            //You can also do something when the connection is lost
+            _connectionManager.ConnectionTimeout += (sender, eventArgs) =>
+            {
+                //Do something
+                _isConnected = false;
+                lblComPort.Text = "Arduino Port: Not Found";
+                SendEmail("Arduino Water Sensor Disconnected from PC", "Arduino Water Sensor Disconnected from PC at :"+ DateTime.Now.ToString());
+            };
 
             // Attach to NewLinesReceived for logging purposes
             _cmdMessenger.NewLineReceived += NewLineReceived;
@@ -180,15 +163,10 @@ namespace AquariumArduinoClient
             // Attach to NewLineSent for logging purposes
             _cmdMessenger.NewLineSent += NewLineSent;
 
-            // Start listening
-            _cmdMessenger.Connect();
-            
-            // Send command to start sending data
-            var command = new SendCommand((int)Command.StartLogging);
+            // Finally - activate connection manager
+            _connectionManager.StartConnectionManager();
 
-            // Send command
-            _cmdMessenger.SendCommand(command);
-            _isConnected = true;
+
         }
 
         // Exit function
@@ -196,9 +174,11 @@ namespace AquariumArduinoClient
         {
             try
             {
-                _cmdMessenger.NewLineReceived -= NewLineReceived;
+                //_cmdMessenger.NewLineReceived -= NewLineReceived;
 
-                _cmdMessenger.NewLineSent -= NewLineSent;
+                //_cmdMessenger.NewLineSent -= NewLineSent;
+
+                _connectionManager.Dispose();
                 // Stop listening
                 _cmdMessenger.Disconnect();
 
@@ -258,7 +238,6 @@ namespace AquariumArduinoClient
         // Callback function that prints that the Arduino has acknowledged
         void OnAcknowledge(ReceivedCommand arguments)
         {
-            _arduinoFound = true;
             LogCommand(@" Arduino is ready");
         }
 
@@ -283,17 +262,17 @@ namespace AquariumArduinoClient
             lblPH.ForeColor = Color.Green;
             if (phVal > _settings.PHSettings.HighValue)
             {
-                SendAlert("PH is High! - " + phVal, DateTime.Now.ToString() + " PH: " + phVal);
+                SendEmailAlert("PH is High! - " + phVal, DateTime.Now.ToString() + " PH: " + phVal);
                 lblPH.ForeColor = Color.Red;
             }
             if (phVal < _settings.PHSettings.LowValue)
             {
-                SendAlert("PH is Low! - " + phVal, DateTime.Now.ToString() + " PH: " + phVal);
+                SendEmailAlert("PH is Low! - " + phVal, DateTime.Now.ToString() + " PH: " + phVal);
                 lblPH.ForeColor = Color.Red;
             }
 
         }
-        private void SendAlert(string subject, string body)
+        private void SendEmailAlert(string subject, string body)
         {
             if (_alertLastSent.Date != DateTime.Now.Date)
             {
@@ -315,6 +294,7 @@ namespace AquariumArduinoClient
         // Log received line to console
         private void NewLineReceived(object sender, CommandEventArgs e)
         {
+            _isConnected = true;
             LogCommand(@"Received > " + e.Command.CommandString());
         }
 
@@ -359,12 +339,17 @@ namespace AquariumArduinoClient
 
                 //mail.Attachments.Add(new Attachment("C:\\SomeFile.txt"));
                 //mail.Attachments.Add(new Attachment("C:\\SomeZip.zip"));
-
-                using (SmtpClient smtp = new SmtpClient(smtpAddress, portNumber))
+                try
                 {
-                    smtp.Credentials = new NetworkCredential(emailFrom, password);
-                    smtp.EnableSsl = enableSSL;
-                    smtp.Send(mail);
+                    using (SmtpClient smtp = new SmtpClient(smtpAddress, portNumber))
+                    {
+                        smtp.Credentials = new NetworkCredential(emailFrom, password);
+                        smtp.EnableSsl = enableSSL;
+                        smtp.Send(mail);
+                    }
+                }catch(Exception ex)
+                {
+                    LogCommand("Failed to send mail -> " + ex.Message);
                 }
             }
         }
@@ -414,7 +399,7 @@ namespace AquariumArduinoClient
 
             }
             else
-                LogCommand("No response!");
+                LogCommand("Offset - No response!");
 
             // Stop running loop
             //RunLoop = false;

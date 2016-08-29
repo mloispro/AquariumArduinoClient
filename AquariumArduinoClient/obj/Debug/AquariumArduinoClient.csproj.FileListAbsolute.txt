@@ -10,3 +10,4 @@ C:\Projects\AquariumArduinoClient\AquariumArduinoClient\obj\Debug\AquariumArduin
 C:\Projects\AquariumArduinoClient\AquariumArduinoClient\obj\Debug\AquariumArduinoClient.csproj.GenerateResource.Cache
 C:\Projects\AquariumArduinoClient\AquariumArduinoClient\obj\Debug\AquariumArduinoClient.exe
 C:\Projects\AquariumArduinoClient\AquariumArduinoClient\obj\Debug\AquariumArduinoClient.pdb
+C:\Projects\AquariumArduinoClient\AquariumArduinoClient\obj\Debug\AquariumArduinoClient.csprojResolveAssemblyReference.cache

@@ -187,25 +187,31 @@ namespace AquariumArduinoClient.Utilities
             if (obj == null) obj = new T();
             return obj;
         }
-        public static void SaveJsonObject<T>(T obj, string filename)
+        public async static Task SaveJsonObject<T>(T obj, string filename)
         {
             //var binDir = System.Reflection.Assembly.GetExecutingAssembly().Location;
           
             var file = UserSettingsDir + @"\" + filename;
 
-            Task.Factory.StartNew(() =>
+            await Task.Factory.StartNew(() =>
             {
                 
-                FileIO.EnsureFileClosed(file);
+                FileIO.EnsureFileClosed(file).Wait();
 
                 //create bakup
                 if (File.Exists(file))
                 {
                     string bakFile = file + "_bak";
+                    if (File.Exists(bakFile))
+                    {
+                        FileIO.EnsureFileClosed(bakFile).Wait();
+                        File.Delete(bakFile);
+                    }
+
                     if (!File.Exists(bakFile))
                         File.Create(bakFile).Close();
             
-                    FileIO.EnsureFileClosed(bakFile);
+                    FileIO.EnsureFileClosed(bakFile).Wait();
                     File.Copy(file, bakFile, true);
                     //MessageBox.Show("created bak: " + bakFile);
                 }
