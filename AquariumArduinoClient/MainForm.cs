@@ -51,6 +51,11 @@ namespace AquariumArduinoClient
             tbOffset.Text = _settings.PHSettings.Offset.ToString();
             lblPH.Text = "PH: Not Connected!";
             lblPH.ForeColor = Color.Red;
+
+            if (_settings.PHSettings.Offset < 0)
+                cbOffsetNegative.Checked = true;
+            
+
             SetupComm();
 
         }
@@ -371,26 +376,36 @@ namespace AquariumArduinoClient
             Settings.Save(_settings);
         }
 
-        private void tbOffset_TextChanged(object sender, EventArgs e)
-        {
-
-        }
+      
         private void tbOffset_Leave(object sender, EventArgs e)
+        {
+            SendOffset();
+        }
+
+        private void cbOffsetNegative_CheckedChanged(object sender, EventArgs e)
+        {
+            SendOffset();
+        }
+        private void SendOffset()
         {
             var offsetString = tbOffset.Text;
             double offset = Convert.ToDouble(offsetString);
+
+            if (cbOffsetNegative.Checked)
+                offset = offset * -1;
+
             _settings.PHSettings.Offset = offset;
 
             Settings.Save(_settings);
 
             if (!_isConnected) return;
             // Create command FloatAddition, which will wait for a return command FloatAdditionResult
-            var command = new SendCommand((int)Command.SetPHOffset, (int)Command.SetPHOffsetResult, 1000); 
+            var command = new SendCommand((int)Command.SetPHOffset, (int)Command.SetPHOffsetResult, 1000);
 
-            
+
 
             command.AddArgument((float)offset);
-            
+
             // Send command
             var cmdResult = _cmdMessenger.SendCommand(command);
 

@@ -40,6 +40,7 @@
             this.tbHighPH = new System.Windows.Forms.MaskedTextBox();
             this.label3 = new System.Windows.Forms.Label();
             this.tbOffset = new System.Windows.Forms.MaskedTextBox();
+            this.cbOffsetNegative = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // btnDetectComPort
@@ -146,14 +147,25 @@
             this.tbOffset.Name = "tbOffset";
             this.tbOffset.Size = new System.Drawing.Size(27, 20);
             this.tbOffset.TabIndex = 10;
-            this.tbOffset.TextChanged += new System.EventHandler(this.tbOffset_TextChanged);
             this.tbOffset.Leave += new System.EventHandler(this.tbOffset_Leave);
             // 
-            // Form1
+            // cbOffsetNegative
+            // 
+            this.cbOffsetNegative.AutoSize = true;
+            this.cbOffsetNegative.Location = new System.Drawing.Point(473, 98);
+            this.cbOffsetNegative.Name = "cbOffsetNegative";
+            this.cbOffsetNegative.Size = new System.Drawing.Size(67, 17);
+            this.cbOffsetNegative.TabIndex = 11;
+            this.cbOffsetNegative.Text = "negative";
+            this.cbOffsetNegative.UseVisualStyleBackColor = true;
+            this.cbOffsetNegative.CheckedChanged += new System.EventHandler(this.cbOffsetNegative_CheckedChanged);
+            // 
+            // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(584, 312);
+            this.Controls.Add(this.cbOffsetNegative);
             this.Controls.Add(this.tbOffset);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.tbHighPH);
@@ -166,7 +178,7 @@
             this.Controls.Add(this.lblComPort);
             this.Controls.Add(this.btnDetectComPort);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.Name = "Form1";
+            this.Name = "MainForm";
             this.Text = "Aquarium Arduino Client";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.ResumeLayout(false);
@@ -187,6 +199,7 @@
         private System.Windows.Forms.MaskedTextBox tbHighPH;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.MaskedTextBox tbOffset;
+        private System.Windows.Forms.CheckBox cbOffsetNegative;
     }
 }
 
