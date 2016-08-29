@@ -92,13 +92,13 @@ namespace AquariumArduinoClient
 
             // Create Serial Port object
             // Note that for some boards (e.g. Sparkfun Pro Micro) DtrEnable may need to be true.
-            _serialTransport = new SerialTransport { CurrentSerialSettings = { DtrEnable = false } };
+            _serialTransport = new SerialTransport { CurrentSerialSettings = { DtrEnable = false, BaudRate=9600 } };
 
             // Initialize the command messenger with the Serial Port transport layer
             // Set if it is communicating with a 16- or 32-bit Arduino board
             _cmdMessenger = new CmdMessenger(_serialTransport, BoardType.Bit16)
             {
-                PrintLfCr = false // Do not print newLine at end of command, to reduce data being sent
+                PrintLfCr = false, // Do not print newLine at end of command, to reduce data being sent
             };
 
             // Tell CmdMessenger to "Invoke" commands on the thread running the WinForms UI
@@ -124,6 +124,11 @@ namespace AquariumArduinoClient
                 CommunicationIdentifier,
                 serialConnectionStorer)
             {
+                WatchdogTimeout = 6000,
+                WatchdogRetryTimeout = 3000,
+
+                DeviceScanBaudRateSelection = false, //only use baudrate in serial settings
+
                 // Enable watchdog functionality.
                 WatchdogEnabled = true,
 
