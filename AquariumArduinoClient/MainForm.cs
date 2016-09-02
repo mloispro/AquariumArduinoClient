@@ -17,6 +17,7 @@ using AquariumArduinoClient.Controls;
 using System.Net.Mail;
 using System.Net;
 using AquariumArduinoClient.Utilities;
+using AquariumArduinoClient.Models;
 
 namespace AquariumArduinoClient
 {
@@ -44,6 +45,10 @@ namespace AquariumArduinoClient
         public MainForm()
         {
             InitializeComponent();
+
+            //new PHLog().TestPhLogs();
+            //return;
+
             _settings = Settings.Get();
 
             tbLowPH.Text = _settings.PHSettings.LowValue.ToString();
@@ -110,7 +115,7 @@ namespace AquariumArduinoClient
             _cmdMessenger.ControlToInvokeOn = this;
 
             // Set Received command strategy that removes commands that are older than 1 sec
-            _cmdMessenger.AddReceiveCommandStrategy(new StaleGeneralStrategy(8000));
+            _cmdMessenger.AddReceiveCommandStrategy(new StaleGeneralStrategy(10000));
 
             // Attach the callbacks to the Command Messenger
             AttachCommandCallBacks();
@@ -129,8 +134,8 @@ namespace AquariumArduinoClient
                 CommunicationIdentifier,
                 serialConnectionStorer)
             {
-                WatchdogTimeout = 6000,
-                WatchdogRetryTimeout = 3000,
+                WatchdogTimeout = 10000,
+                WatchdogRetryTimeout = 6000,
 
                 DeviceScanBaudRateSelection = false, //only use baudrate in serial settings
 
@@ -257,7 +262,7 @@ namespace AquariumArduinoClient
             LogCommand(@"Arduino has experienced an error");
         }
 
-        // Callback function that plots a data point for ADC 1 and ADC 2
+        // Callback function that Gets PH
         private void OnSendPH(ReceivedCommand arguments)
         {
             var time = arguments.ReadFloatArg();
@@ -282,14 +287,7 @@ namespace AquariumArduinoClient
             }
 
         }
-        private void SendEmailAlert(string subject, string body)
-        {
-            if (_alertLastSent.Date != DateTime.Now.Date)
-            {
-                SendEmail(subject, body);
-                _alertLastSent = DateTime.Now;
-            }
-        }
+       
         private void LogCommand(string text, TimeSpan runtime)
         {
             string minSec = runtime.ToString(@"hh\:mm\:ss");
@@ -324,7 +322,14 @@ namespace AquariumArduinoClient
             tbCmdLog.SelectionStart = tbCmdLog.Text.Length;
             tbCmdLog.ScrollToCaret();
         }
-
+        private void SendEmailAlert(string subject, string body)
+        {
+            if (_alertLastSent.Date != DateTime.Now.Date)
+            {
+                SendEmail(subject, body);
+                _alertLastSent = DateTime.Now;
+            }
+        }
         private void SendEmail(string subject, string body)
         {
             string smtpAddress = "smtp.live.com";
