@@ -1,0 +1,7 @@
+C:\Projects\AquariumArduinoClient\EALFramework\bin\Release\EALFramework.dll
+C:\Projects\AquariumArduinoClient\EALFramework\bin\Release\EALFramework.pdb
+C:\Projects\AquariumArduinoClient\EALFramework\bin\Release\Newtonsoft.Json.dll
+C:\Projects\AquariumArduinoClient\EALFramework\bin\Release\Newtonsoft.Json.xml
+C:\Projects\AquariumArduinoClient\EALFramework\obj\Release\EALFramework.csprojResolveAssemblyReference.cache
+C:\Projects\AquariumArduinoClient\EALFramework\obj\Release\EALFramework.dll
+C:\Projects\AquariumArduinoClient\EALFramework\obj\Release\EALFramework.pdb

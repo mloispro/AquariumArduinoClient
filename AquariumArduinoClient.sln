@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.25123.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AquariumArduinoClient", "AquariumArduinoClient\AquariumArduinoClient.csproj", "{EAF9BF85-9B63-471F-AE3E-FBF00BCC49DB}"
 EndProject
@@ -10,6 +10,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "lib", "lib", "{BF1CE1D8-F4E
 		lib\CommandMessenger.dll = lib\CommandMessenger.dll
 		lib\CommandMessenger.Transport.Serial.dll = lib\CommandMessenger.Transport.Serial.dll
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AquariumArduinoWeb", "AquariumArduinoWeb\AquariumArduinoWeb.csproj", "{BBE39921-AADE-4D6E-8E08-2E619F0A0FCE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EALFramework", "EALFramework\EALFramework.csproj", "{E1BC95F1-2DD8-4985-B632-7FA05B88FCD0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AquariumArduinoClient.Test", "AquariumArduinoClient.Test\AquariumArduinoClient.Test.csproj", "{658255AC-B01E-449A-B1A5-4AAF7A05C30C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +27,18 @@ Global
 		{EAF9BF85-9B63-471F-AE3E-FBF00BCC49DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EAF9BF85-9B63-471F-AE3E-FBF00BCC49DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EAF9BF85-9B63-471F-AE3E-FBF00BCC49DB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BBE39921-AADE-4D6E-8E08-2E619F0A0FCE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BBE39921-AADE-4D6E-8E08-2E619F0A0FCE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BBE39921-AADE-4D6E-8E08-2E619F0A0FCE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BBE39921-AADE-4D6E-8E08-2E619F0A0FCE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E1BC95F1-2DD8-4985-B632-7FA05B88FCD0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E1BC95F1-2DD8-4985-B632-7FA05B88FCD0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E1BC95F1-2DD8-4985-B632-7FA05B88FCD0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E1BC95F1-2DD8-4985-B632-7FA05B88FCD0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{658255AC-B01E-449A-B1A5-4AAF7A05C30C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{658255AC-B01E-449A-B1A5-4AAF7A05C30C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{658255AC-B01E-449A-B1A5-4AAF7A05C30C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{658255AC-B01E-449A-B1A5-4AAF7A05C30C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

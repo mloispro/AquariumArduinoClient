@@ -1,0 +1,14 @@
+C:\Projects\AquariumArduinoClient\AquariumArduinoClient.Test\bin\Debug\AquariumArduinoClient.Test.dll
+C:\Projects\AquariumArduinoClient\AquariumArduinoClient.Test\bin\Debug\AquariumArduinoClient.Test.pdb
+C:\Projects\AquariumArduinoClient\AquariumArduinoClient.Test\bin\Debug\AquariumArduinoClient.exe
+C:\Projects\AquariumArduinoClient\AquariumArduinoClient.Test\bin\Debug\EALFramework.dll
+C:\Projects\AquariumArduinoClient\AquariumArduinoClient.Test\bin\Debug\Microsoft.VisualStudio.QualityTools.UnitTestFramework.dll
+C:\Projects\AquariumArduinoClient\AquariumArduinoClient.Test\bin\Debug\CommandMessenger.Transport.Serial.dll
+C:\Projects\AquariumArduinoClient\AquariumArduinoClient.Test\bin\Debug\CommandMessenger.dll
+C:\Projects\AquariumArduinoClient\AquariumArduinoClient.Test\bin\Debug\Newtonsoft.Json.dll
+C:\Projects\AquariumArduinoClient\AquariumArduinoClient.Test\bin\Debug\AquariumArduinoClient.pdb
+C:\Projects\AquariumArduinoClient\AquariumArduinoClient.Test\bin\Debug\EALFramework.pdb
+C:\Projects\AquariumArduinoClient\AquariumArduinoClient.Test\bin\Debug\Newtonsoft.Json.xml
+C:\Projects\AquariumArduinoClient\AquariumArduinoClient.Test\obj\Debug\AquariumArduinoClient.Test.csprojResolveAssemblyReference.cache
+C:\Projects\AquariumArduinoClient\AquariumArduinoClient.Test\obj\Debug\AquariumArduinoClient.Test.dll
+C:\Projects\AquariumArduinoClient\AquariumArduinoClient.Test\obj\Debug\AquariumArduinoClient.Test.pdb

@@ -8,15 +8,16 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Newtonsoft.Json;
 using AquariumArduinoClient.Models;
+using EALFramework.Utils;
 
 namespace AquariumArduinoClient.Utilities
 {
     public class Settings
     {
-        public static string UserSettingsDir = Application.UserAppDataPath;
-        public static string AppDir = Application.StartupPath;
-
-        public PHSettings PHSettings;
+        
+        public  PHSettings PHSettings;
+        public  string UserSettingsDir;
+        public  string AppDir;
         //public const string DefaultOpenVPNDirectory = @"C:\Program Files (x86)\OpenVPN";
         //public const string DefaultVPNBookConfigDownload = @"http://www.vpnbook.com/free-openvpn-account/VPNBook.com-OpenVPN-Euro1.zip";
         //public const string DefaultVPNBookCredsPage = @"http://www.vpnbook.com/freevpn";
@@ -67,18 +68,55 @@ namespace AquariumArduinoClient.Utilities
         //public string ExcludedFolderFromMediaTransfer { get; set; }
 
         private static Settings _settings;
-        
+
+        //private static void EnsureAppDataSettings()
+        //{
+
+        //    //if (String.IsNullOrEmpty(_settings.UserSettingsDir) ||
+        //    //    String.IsNullOrEmpty(_settings.AppDir))
+        //    //{
+        //    //    _settings.UserSettingsDir = Application.UserAppDataPath;
+        //    //    _settings.AppDir = Application.StartupPath;
+        //    //    Save(_settings);
+
+        //    //}
+        //    string appDataFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\AquariumArduinoClient";
+        //    if (_settings == null &&
+        //        String.IsNullOrEmpty(Globals.UserSettingsDir) ||
+        //       String.IsNullOrEmpty(Globals.AppDir))
+        //    {
+        //        Globals.UserSettingsDir = Application.UserAppDataPath;
+        //        Globals.AppDir = Application.StartupPath;
+        //    }
+        //    else if (_settings != null &&
+        //       String.IsNullOrEmpty(_settings.UserSettingsDir) ||
+        //      String.IsNullOrEmpty(_settings.AppDir))
+        //    {
+        //        _settings.UserSettingsDir = Application.UserAppDataPath;
+        //        _settings.AppDir = Application.StartupPath;
+                
+        //        Save(_settings);
+        //    }
+        //    if (_settings != null &&
+        //     String.IsNullOrEmpty(Globals.UserSettingsDir) ||
+        //    String.IsNullOrEmpty(Globals.AppDir))
+        //    {
+        //        Globals.UserSettingsDir = _settings.UserSettingsDir;
+        //        Globals.AppDir = _settings.AppDir;
+        //    }
+        //}
+
         public static Settings Get()
         {
-            
             // Create a file that the application will store user specific data in.
             if (_settings != null)
             {
                 //FillOPNVPNConfigs();
                 return _settings;
             }
+           
+            _settings = FileIO.GetJsonObject<Settings>("settings.json");
 
-            _settings = Settings.GetJsonObject<Settings>("settings.json");
             if (_settings.PHSettings==null)
             {
                 _settings.PHSettings = new Models.PHSettings { HighValue = 7.0, LowValue = 6.2, Offset = 1.1 };
@@ -113,155 +151,12 @@ namespace AquariumArduinoClient.Utilities
             //{
             //    settings.OpenVPNDirectory = DefaultOpenVPNDirectory;
             //}
-            Settings.SaveJsonObject(settings, "settings.json");
+            FileIO.SaveJsonObject(settings, "settings.json");
             //Logging.Log("Saved Settings To: " + UserSettingsDir);
             //MessageBox.Show("Saved Settings To: " + UserSettingsDir);
             _settings = settings;
         }
 
-        public static void SaveJson<T>(List<T> list, string filename)
-        {
-            //var binDir = System.Reflection.Assembly.GetExecutingAssembly().Location;
-            
-            var file = UserSettingsDir + @"\" + filename;
 
-            if (!File.Exists(file))
-            {
-                File.Create(file).Close();
-            }
-            //clear file
-            File.WriteAllText(file, String.Empty);
-
-            var json = JsonConvert.SerializeObject(list);
-            File.WriteAllText(file, json);
-
-        }
-        public static List<T> GetJson<T>(string filename)
-        {
-            
-          
-            var file = UserSettingsDir + @"\" + filename;
-
-            List<T> list = new List<T>();
-            if (!File.Exists(file))
-            {
-                File.Create(file).Close();
-            }
-            else
-            {
-                if (new FileInfo(file).Length == 0)
-                {
-                    return list;
-                }
-            }
-
-            list = JsonConvert.DeserializeObject<List<T>>(File.ReadAllText(file));
-            if (list == null) list = new List<T>();
-            return list;
-        }
-        public static T GetJsonObject<T>(string filename) where T : new()
-        {
-           
-            var file = UserSettingsDir + @"\" + filename;
-
-            T obj = new T();
-            if (!File.Exists(file))
-            {
-                File.Create(file).Close();
-            }
-            else
-            {
-                if (new FileInfo(file).Length == 0)
-                {
-                    return obj;
-                }
-            }
-            try
-            {
-                obj = JsonConvert.DeserializeObject<T>(File.ReadAllText(file));
-            }
-            catch
-            {
-                File.WriteAllText(file, "");
-            }
-            if (obj == null) obj = new T();
-            return obj;
-        }
-        public async static Task SaveJsonObject<T>(T obj, string filename)
-        {
-            //var binDir = System.Reflection.Assembly.GetExecutingAssembly().Location;
-          
-            var file = UserSettingsDir + @"\" + filename;
-
-            await Task.Factory.StartNew(() =>
-            {
-                
-                FileIO.EnsureFileClosed(file).Wait();
-
-                //create bakup
-                if (File.Exists(file))
-                {
-                    string bakFile = file + "_bak";
-                    if (File.Exists(bakFile))
-                    {
-                        FileIO.EnsureFileClosed(bakFile).Wait();
-                        File.Delete(bakFile);
-                    }
-
-                    if (!File.Exists(bakFile))
-                        File.Create(bakFile).Close();
-            
-                    FileIO.EnsureFileClosed(bakFile).Wait();
-                    File.Copy(file, bakFile, true);
-                    //MessageBox.Show("created bak: " + bakFile);
-                }
-               
-                File.Delete(file);
-
-                bool isSerialized = false;
-                string json = "";
-                while (!isSerialized)
-                {
-                    try
-                    {
-
-                        json = JsonConvert.SerializeObject(obj);
-                        isSerialized = true;
-                    }
-                    catch
-                    {
-                        isSerialized = false; 
-                        Task.Delay(100).Wait();
-                    }
-                }
-                
-                File.WriteAllText(file, json);
-            });
-
-        }
-        //private static void FillOPNVPNConfigs()
-        //{
-        //    //string configDir = _settings.OpenVPNDirectory + @"\config";
-        //    //_settings.OpenVPNConfigs = new List<KeyValue>();
-
-        //    //var ext = new List<string> { ".ovpn" };
-        //    //var configFiles = Directory.GetFiles(configDir, "*.*", SearchOption.AllDirectories)
-        //    //     .Where(s => ext.Any(e => s.EndsWith(e)));
-
-        //    //if (configFiles.Count() == 0)
-        //    //{
-        //    //    var config = File.Create(configDir + @"\" + VPNGate.VpnGateConifg);
-        //    //    FileIO.FileClose(config);
-        //    //}
-
-        //    //foreach (var file in configFiles)
-        //    //{
-        //    //    var fileName = Path.GetFileName(file);
-        //    //    if (!_settings.OpenVPNConfigs.Any(x => x.Key == fileName))
-        //    //    {
-        //    //        _settings.OpenVPNConfigs.Add(new KeyValue { Key = fileName, Value = file });
-        //    //    }
-        //    //}
-        //}
     }
 }
