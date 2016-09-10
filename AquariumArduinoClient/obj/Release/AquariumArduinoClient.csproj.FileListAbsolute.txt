@@ -1,0 +1,15 @@
+C:\Projects\AquariumArduinoClient\AquariumArduinoClient\bin\Release\AquariumArduinoClient.exe.config
+C:\Projects\AquariumArduinoClient\AquariumArduinoClient\bin\Release\AquariumArduinoClient.exe
+C:\Projects\AquariumArduinoClient\AquariumArduinoClient\bin\Release\AquariumArduinoClient.pdb
+C:\Projects\AquariumArduinoClient\AquariumArduinoClient\bin\Release\CommandMessenger.dll
+C:\Projects\AquariumArduinoClient\AquariumArduinoClient\bin\Release\CommandMessenger.Transport.Serial.dll
+C:\Projects\AquariumArduinoClient\AquariumArduinoClient\bin\Release\EALFramework.dll
+C:\Projects\AquariumArduinoClient\AquariumArduinoClient\bin\Release\Newtonsoft.Json.dll
+C:\Projects\AquariumArduinoClient\AquariumArduinoClient\bin\Release\EALFramework.pdb
+C:\Projects\AquariumArduinoClient\AquariumArduinoClient\bin\Release\Newtonsoft.Json.xml
+C:\Projects\AquariumArduinoClient\AquariumArduinoClient\obj\Release\AquariumArduinoClient.csprojResolveAssemblyReference.cache
+C:\Projects\AquariumArduinoClient\AquariumArduinoClient\obj\Release\AquariumArduinoClient.MainForm.resources
+C:\Projects\AquariumArduinoClient\AquariumArduinoClient\obj\Release\AquariumArduinoClient.Properties.Resources.resources
+C:\Projects\AquariumArduinoClient\AquariumArduinoClient\obj\Release\AquariumArduinoClient.csproj.GenerateResource.Cache
+C:\Projects\AquariumArduinoClient\AquariumArduinoClient\obj\Release\AquariumArduinoClient.exe
+C:\Projects\AquariumArduinoClient\AquariumArduinoClient\obj\Release\AquariumArduinoClient.pdb

@@ -4,3 +4,4 @@ C:\Projects\AquariumArduinoClient\EALFramework\bin\Debug\Newtonsoft.Json.dll
 C:\Projects\AquariumArduinoClient\EALFramework\bin\Debug\Newtonsoft.Json.xml
 C:\Projects\AquariumArduinoClient\EALFramework\obj\Debug\EALFramework.dll
 C:\Projects\AquariumArduinoClient\EALFramework\obj\Debug\EALFramework.pdb
+C:\Projects\AquariumArduinoClient\EALFramework\obj\Debug\EALFramework.csprojResolveAssemblyReference.cache

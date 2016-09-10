@@ -18,6 +18,7 @@ using System.Net.Mail;
 using System.Net;
 using AquariumArduinoClient.Utilities;
 using AquariumArduinoClient.Models;
+using EALFramework.Controllers;
 
 namespace AquariumArduinoClient
 {
@@ -272,7 +273,7 @@ namespace AquariumArduinoClient
             TimeSpan runtime = TimeSpan.FromSeconds(time);
 
             LogCommand(@"PHSend > PH=" + phVal+ ", V=" + voltsVal, runtime);
-            //todo: log and display data
+            PHLogController.Log(phVal);
             lblPH.Text = "PH: " + phVal;
             lblPH.ForeColor = Color.Green;
             if (phVal > _settings.PHSettings.HighValue)

@@ -1,5 +1,7 @@
-﻿using System;
+﻿using EALFramework.Utils;
+using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -16,6 +18,7 @@ namespace AquariumArduinoWeb
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
+            Globals.UserSettingsDir = ConfigurationManager.AppSettings["AppDataFolderLocation"];
         }
     }
 }
