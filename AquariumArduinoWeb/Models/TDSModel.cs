@@ -11,5 +11,6 @@ namespace AquariumArduinoWeb.Models
         public List<double> TDSVal { get; set; }
         public List<string> SampleDate { get; set; }
         public double CurrentTDS{ get; set; }
+        public double DailyTDS { get; set; }
     }
 }

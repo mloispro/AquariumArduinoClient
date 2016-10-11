@@ -102,6 +102,20 @@ namespace EALFramework.Controllers
 
             return logs;
         }
+        public static List<TDSLog> GetDailySummaryTdsLogs()
+        {
+
+            _rawTdsLogs = GetTDSLogs();
+
+            var logs = _rawTdsLogs.GroupBy(x => new DateTime(x.LogDate.Year, x.LogDate.Month, x.LogDate.Day, 0, 0, 0))
+                  .Select(g => new TDSLog
+                  {
+                      LogDate = g.Key,
+                      TdsVal = g.Average(i => i.TdsVal)
+                  }).OrderBy(x => x.LogDate).ToList();
+
+            return logs;
+        }
         public static List<TDSLog> GetHourlySummaryTdsLogs()
         {
 
@@ -143,17 +157,27 @@ namespace EALFramework.Controllers
 
             return avg;
         }
+        public static double GetDailyTds()
+        {
+            double avg = 0;
 
+            var logs = _rawTdsLogs.FindAll(x =>
+                x.LogDate.Day == DateTime.Now.Day);
+
+            avg = GetAverageTds(logs);
+
+            return Math.Round(avg,0);
+        }
         public static double GetDailyPh()
         {
-            double phAverage = 0;
+            double avg = 0;
 
             var dailyPhLogs = _rawPHLogs.FindAll(x =>
                 x.LogDate.Day == DateTime.Now.Day);
 
-            phAverage = GetAveragePh(dailyPhLogs);
+            avg = GetAveragePh(dailyPhLogs);
 
-            return phAverage;
+            return Math.Round(avg, 2);
         }
         private static double GetAveragePh(List<PHLog> logs)
         {

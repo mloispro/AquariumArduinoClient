@@ -31,6 +31,7 @@ namespace EALFramework.Controllers
             model.PHModel.SampleDate = phLogs.Select(x => string.Format("{0:htt}", x.LogDate)).ToList();
             model.PHModel.PHVal = phLogs.Select(x => Math.Round(x.PhVal, 2)).ToList();
             model.PHModel.CurrentPH = WaterSensorController.CurrentPH;
+            model.PHModel.DailyPH = WaterSensorController.GetDailyPh();
 
             List<TDSLog> tdsLogs = WaterSensorController.GetHourlySummaryTdsLogs();
 
@@ -38,6 +39,7 @@ namespace EALFramework.Controllers
             model.TDSModel.SampleDate = tdsLogs.Select(x => string.Format("{0:htt}", x.LogDate)).ToList();
             model.TDSModel.TDSVal = tdsLogs.Select(x => Math.Round(x.TdsVal, 0)).ToList();
             model.TDSModel.CurrentTDS = WaterSensorController.CurrentTDS;
+            model.TDSModel.DailyTDS = WaterSensorController.GetDailyTds();
 
             return model;
         }
