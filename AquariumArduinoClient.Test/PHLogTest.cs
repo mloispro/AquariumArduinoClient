@@ -15,6 +15,15 @@ namespace AquariumArduinoClient.Test
         Settings _settings = Settings.Get();
 
         [TestMethod]
+        public void TestGetHourlyLogs()
+        {
+            var rawLogs = WaterSensorController.GetHourlySummaryTdsLogs();
+            //var hourlyAvg = WaterSensorController.GetHourlyPhAverage();
+            //var dailyAvg = WaterSensorController.GetDailyPh();
+
+        }
+
+        [TestMethod]
         public void TestPhHourlyDailyLogs()
         {
             var now = DateTime.Now;
@@ -25,19 +34,19 @@ namespace AquariumArduinoClient.Test
                 string dec = "1." + i;
                 double aDec = double.Parse(dec);
                 var phVal = phStart * aDec;
-                var pastDate = DateTime.Now.AddMinutes(Globals.SavePHLogEveryMin * i * -1);
-                PHLogController._rawLogs.Add(new PHLog(phVal, pastDate));
+                var pastDate = DateTime.Now.AddMinutes(Globals.SaveLogEveryMin * i * -1);
+                WaterSensorController._rawPHLogs.Add(new PHLog(phVal, pastDate));
             }
 
-            var hourlyAvg = PHLogController.GetHourlyPhAverage();
-            var dailyAvg = PHLogController.GetDailyPh();
+            var hourlyAvg = WaterSensorController.GetHourlyPhAverage();
+            var dailyAvg = WaterSensorController.GetDailyPh();
             
         }
 
         [TestMethod]
         public void TestPhLogToFile()
         {
-            Globals.SavePHLogEveryMin = 1;
+            Globals.SaveLogEveryMin = 1;
             var phStart = 5.0;
             var samples = 10;
             for (int i = 0; i < samples; i++)
@@ -45,11 +54,11 @@ namespace AquariumArduinoClient.Test
                 string dec = "1." + i;
                 double aDec = double.Parse(dec);
                 var phVal = phStart * aDec;
-                PHLogController.Log(phVal);
-                Thread.Sleep((int)Globals.SavePHLogEveryMin * 60 * 1000 + 500);
+                WaterSensorController.LogPh(phVal);
+                Thread.Sleep((int)Globals.SaveLogEveryMin * 60 * 1000 + 500);
             }
 
-            var phLogs = PHLogController.GetLogs();
+            var phLogs = WaterSensorController.GetPHLogs();
             Assert.IsTrue(phLogs.Count > 0);
 
         }

@@ -10,9 +10,9 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO.Ports;
 using System.IO;
-using CommandMessenger;
-using CommandMessenger.Queue;
-using CommandMessenger.Transport.Serial;
+//using CommandMessenger;
+//using CommandMessenger.Queue;
+//using CommandMessenger.Transport.Serial;
 using AquariumArduinoClient.Controls;
 using System.Net.Mail;
 using System.Net;
@@ -25,12 +25,13 @@ namespace AquariumArduinoClient
     public partial class MainForm : Form
     {
         private Settings _settings; 
-        private bool _isConnected;
-        private SerialTransport _serialTransport;
-        private CmdMessenger _cmdMessenger;
-        private static ConnectionManager _connectionManager;
+        //private bool _isConnected;
+        //private SerialTransport _serialTransport;
+        //private CmdMessenger _cmdMessenger;
+        //private static ConnectionManager _connectionManager;
         private DateTime _alertLastSent;
         private const string CommunicationIdentifier = "WaterSensors";
+        
 
         enum Command
         {
@@ -46,42 +47,108 @@ namespace AquariumArduinoClient
         public MainForm()
         {
             InitializeComponent();
-
+            Logging.Init(tbCmdLog);
+            Status.Init(statusBar);
             //new PHLog().TestPhLogs();
             //return;
 
-            _settings = Settings.Get();
+            _settings = Utilities.Settings.Get();
 
             tbLowPH.Text = _settings.PHSettings.LowValue.ToString();
             tbHighPH.Text = _settings.PHSettings.HighValue.ToString();
-            tbOffset.Text = _settings.PHSettings.Offset.ToString();
-            lblPH.Text = "PH: Not Connected!";
-            lblPH.ForeColor = Color.Red;
+            tbPHOffset.Text = _settings.PHSettings.Offset.ToString();
+            tbTDSOffset.Text = _settings.TDSSettings.Offset.ToString();
+            //lblPH.Text = "PH: Not Connected!";
+            //lblPH.ForeColor = Color.Red;
+            tbGetSenValsEvery.Text = _settings.GetSensorValsEvery.ToString();
+            if (_settings.GetSensorValsEvery > 0)
+            {
+                timerGetSensorData.Interval = _settings.GetSensorValsEvery * 60 * 1000;
+            }
 
             if (_settings.PHSettings.Offset < 0)
                 cbOffsetNegative.Checked = true;
-            
 
-            SetupComm();
+            if (!string.IsNullOrWhiteSpace(_settings.SensorIP))
+            {
+                List<string> ipSplit = _settings.SensorIP.Split('.').ToList();
+                if (ipSplit.Count > 0)
+                {
+                    tbSensorIP1.Text = ipSplit[0];
+                    tbSensorIP2.Text = ipSplit[1];
+                    tbSensorIP3.Text = ipSplit[2];
+                    tbSensorIP4.Text = ipSplit[3];
+                }
+            }
+            else
+            {
+                ControlHelpers.ShowMessageBox("Sensor Ip not set.");
+            }
+            timerGetSensorData.Start();
+            //GetSensorData();
+           // SetupComm();
 
         }
 
-
-
-        private void btnStop_Click(object sender, EventArgs e)
+        private async void GetSensorData()
         {
-            CloseComm();
-          
+
+
+            if (string.IsNullOrWhiteSpace(_settings.SensorIP))
+            {
+                //ControlHelpers.ShowMessageBox("Sensor Ip not set.");
+                return;
+            }
+            string sensorIP = _settings.SensorIP.Replace(" ", "");
+
+            try
+            {
+                await Task.Run(() =>
+                {
+
+                    System.Net.WebClient wc = new System.Net.WebClient();
+
+                    string webData = wc.DownloadString(string.Format("http://{0}/GetSensorVals", sensorIP));
+                    //string webData = "{\r\n\"host\":\"WaterSensor-1\",\r\n\"ph\":4,\r\n\"tds\":400,\r\n\"phOffset\":3.10,\r\n\"tdsOffset\":1310,\r\n\"reading\":\"ph\",\r\n\"readingDur\":\"115s\",\r\n\"readingInter\":\"600s\"\r\n}\r\n";
+                    WaterSensorData vals = WaterSensorData.Log(webData);
+                    
+                    Status.SetStatus("Retrieved sensor vals");
+                    if (vals.reading == "ph")
+                    {
+                        Logging.Log("Retrieved TDS sensor vals");
+                        lblTDS.SetControlText("TDS: " + vals.tds.ToString());
+                    }
+                    else
+                    {
+                        Logging.Log("Retrieved PH sensor vals");
+                        lblPH.SetControlText("PH: " + vals.ph.ToString());
+                    }
+                    _settings.PHSettings.Offset = vals.phOffset;
+                    _settings.TDSSettings.Offset = vals.tdsOffset;
+                    tbPHOffset.SetControlText(vals.phOffset.ToString());
+                    tbTDSOffset.SetControlText(vals.tdsOffset.ToString());
+                });
+            }
+            catch (Exception ex)
+            {
+                Logging.LogError(ex.Message);
+                Status.SetStatus("Failed to get sensor vals", Status.StatusType.ConnError);
+            }
+        }
+
+        private void BwSensorsReadings_DoWork(object sender, DoWorkEventArgs e)
+        {
+            throw new NotImplementedException();
         }
 
         private void btnDetectComPort_Click(object sender, EventArgs e)
         {
             tbCmdLog.Text = "";
          
-            CloseComm();
-            SetupComm();
+            //CloseComm();
+            //SetupComm();
 
-            lblComPort.Text = "Arduino Port: Not Found";
+            //lblComPort.Text = "Arduino Port: Not Found";
             //if (portFound)
             //{
             //    lblComPort.Text = "Arduino Port: " + _arduinoPort;
@@ -89,233 +156,12 @@ namespace AquariumArduinoClient
             //}
         }
 
-        private void WaitSeconds(int seconds)
-        {
-            if (seconds < 1) return;
-            DateTime waitTime = DateTime.Now.AddSeconds(seconds);
-            while (DateTime.Now < waitTime)
-            {
-                System.Windows.Forms.Application.DoEvents();
-            }
-        }
-        private void SetupComm()
-        {
-
-            // Create Serial Port object
-            // Note that for some boards (e.g. Sparkfun Pro Micro) DtrEnable may need to be true.
-            _serialTransport = new SerialTransport { CurrentSerialSettings = { DtrEnable = false, BaudRate=9600 } };
-
-            // Initialize the command messenger with the Serial Port transport layer
-            // Set if it is communicating with a 16- or 32-bit Arduino board
-            _cmdMessenger = new CmdMessenger(_serialTransport, BoardType.Bit16)
-            {
-                PrintLfCr = false, // Do not print newLine at end of command, to reduce data being sent
-            };
-
-            // Tell CmdMessenger to "Invoke" commands on the thread running the WinForms UI
-            _cmdMessenger.ControlToInvokeOn = this;
-
-            // Set Received command strategy that removes commands that are older than 1 sec
-            _cmdMessenger.AddReceiveCommandStrategy(new StaleGeneralStrategy(10000));
-
-            // Attach the callbacks to the Command Messenger
-            AttachCommandCallBacks();
-
-            // The Connection manager is capable or storing connection settings, in order to reconnect more quickly  
-            // the next time the application is run. You can determine yourself where and how to store the settings
-            // by supplying a class, that implements ISerialConnectionStorer. For convenience, CmdMessenger provides
-            //  simple binary file storage functionality
-            var serialConnectionStorer = new SerialConnectionStorer("SerialConnectionManagerSettings.cfg");
-
-            // We don't need to provide a handler for the Identify command - this is a job for Connection Manager.
-            _connectionManager = new SerialConnectionManager(
-                _serialTransport as SerialTransport,
-                _cmdMessenger,
-                (int)Command.Identify,
-                CommunicationIdentifier,
-                serialConnectionStorer)
-            {
-                WatchdogTimeout = 10000,
-                WatchdogRetryTimeout = 6000,
-
-                DeviceScanBaudRateSelection = false, //only use baudrate in serial settings
-
-                // Enable watchdog functionality.
-                WatchdogEnabled = true,
-
-                // Instead of scanning for the connected port, you can disable scanning and only try the port set in CurrentSerialSettings
-                //DeviceScanEnabled = false
-            };
-
-            // Show all connection progress on command line             
-            _connectionManager.Progress += (sender, eventArgs) =>
-            {
-                // If you want to reduce verbosity, you can only show events of level <=2 or ==1
-                if (eventArgs.Level <= 3) LogCommand(eventArgs.Description);
-            };
-
-            // If connection found, tell the arduino to turn the (internal) led on
-            _connectionManager.ConnectionFound += (sender, eventArgs) =>
-            {
-                // Create command
-                var command = new SendCommand((int)Command.StartLogging);
-                // Send command
-                _cmdMessenger.SendCommand(command);
-                lblComPort.Text = "Arduino Port: " + _serialTransport.CurrentSerialSettings.PortName;
-            };
-
-            //You can also do something when the connection is lost
-            _connectionManager.ConnectionTimeout += (sender, eventArgs) =>
-            {
-                //Do something
-                _isConnected = false;
-                lblComPort.Text = "Arduino Port: Not Found";
-                SendEmail("Arduino Water Sensor Disconnected from PC", "Arduino Water Sensor Disconnected from PC at :"+ DateTime.Now.ToString());
-            };
-
-            // Attach to NewLinesReceived for logging purposes
-            _cmdMessenger.NewLineReceived += NewLineReceived;
-
-            // Attach to NewLineSent for logging purposes
-            _cmdMessenger.NewLineSent += NewLineSent;
-
-            // Finally - activate connection manager
-            _connectionManager.StartConnectionManager();
-
-
-        }
-
-        // Exit function
-        public void CloseComm()
-        {
-            try
-            {
-                //_cmdMessenger.NewLineReceived -= NewLineReceived;
-
-                //_cmdMessenger.NewLineSent -= NewLineSent;
-
-                _connectionManager.Dispose();
-                // Stop listening
-                _cmdMessenger.Disconnect();
-
-                lblPH.Text = "PH: Not Connected!";
-                lblPH.ForeColor = Color.Red;
-
-                // Dispose Command Messenger
-                _cmdMessenger.Dispose();
-
-                // Dispose Serial Port object
-                _serialTransport.Dispose();
-            }
-            catch
-            {
-                try
-                {
-                    // Dispose Command Messenger
-                    _cmdMessenger.Dispose();
-
-                    // Dispose Serial Port object
-                    _serialTransport.Dispose();
-                }
-                catch
-                {
-                    try
-                    {
-                        // Dispose Serial Port object
-                        _serialTransport.Dispose();
-                    }
-                    catch
-                    {
-                    }
-                }
-            }
-            _isConnected = false;
-            Settings.Save(_settings);
-        }
-
-        /// Attach command call backs. 
-        private void AttachCommandCallBacks()
-        {
-            _cmdMessenger.Attach(OnUnknownCommand);
-            _cmdMessenger.Attach((int)Command.Acknowledge, OnAcknowledge);
-            _cmdMessenger.Attach((int)Command.Error, OnError);
-            _cmdMessenger.Attach((int)Command.SendPH, OnSendPH);
-        }
-
-        // ------------------  CALLBACKS ---------------------
-
-        // Called when a received command has no attached function.
-        // In a WinForm application, console output gets routed to the output panel of your IDE
-        void OnUnknownCommand(ReceivedCommand arguments)
-        {
-            LogCommand(@"Command without attached callback received");
-        }
-
-        // Callback function that prints that the Arduino has acknowledged
-        void OnAcknowledge(ReceivedCommand arguments)
-        {
-            LogCommand(@" Arduino is ready");
-        }
-
-        // Callback function that prints that the Arduino has experienced an error
-        void OnError(ReceivedCommand arguments)
-        {
-            LogCommand(@"Arduino has experienced an error");
-        }
-
-        // Callback function that Gets PH
-        private void OnSendPH(ReceivedCommand arguments)
-        {
-            var time = arguments.ReadFloatArg();
-            var phVal = arguments.ReadFloatArg();
-            var voltsVal = arguments.ReadFloatArg();
-
-            TimeSpan runtime = TimeSpan.FromSeconds(time);
-
-            LogCommand(@"PHSend > PH=" + phVal+ ", V=" + voltsVal, runtime);
-            PHLogController.Log(phVal);
-            lblPH.Text = "PH: " + phVal;
-            lblPH.ForeColor = Color.Green;
-            if (phVal > _settings.PHSettings.HighValue)
-            {
-                SendEmailAlert("PH is High! - " + phVal, DateTime.Now.ToString() + " PH: " + phVal);
-                lblPH.ForeColor = Color.Red;
-            }
-            if (phVal < _settings.PHSettings.LowValue)
-            {
-                SendEmailAlert("PH is Low! - " + phVal, DateTime.Now.ToString() + " PH: " + phVal);
-                lblPH.ForeColor = Color.Red;
-            }
-
-        }
+        
        
-        private void LogCommand(string text, TimeSpan runtime)
-        {
-            string minSec = runtime.ToString(@"hh\:mm\:ss");
-            text = minSec + " - "+ text;
-            LogCommand(text);
-        }
-        private void LogCommand(string text)
-        {
-            tbCmdLog.AppendLine(text, 100);
-        }
-
-        // Log received line to console
-        private void NewLineReceived(object sender, CommandEventArgs e)
-        {
-            _isConnected = true;
-            LogCommand(@"Received > " + e.Command.CommandString());
-        }
-
-        // Log sent line to console
-        private void NewLineSent(object sender, CommandEventArgs e)
-        {
-            LogCommand(@"Sent > " + e.Command.CommandString());
-        }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
-            CloseComm();
+            //CloseComm();
         }
 
         private void tbCmdLog_TextChanged(object sender, EventArgs e)
@@ -370,31 +216,81 @@ namespace AquariumArduinoClient
             }
         }
 
+        private void LogCommand(string text)
+        {
+            tbCmdLog.AppendLine(text, 100);
+        }
+
         private void tbLowPH_TextChanged(object sender, EventArgs e)
         {
             _settings.PHSettings.LowValue = double.Parse(tbLowPH.Text);
-            Settings.Save(_settings);
+            Utilities.Settings.Save(_settings);
         }
 
         private void tbHighPH_TextChanged(object sender, EventArgs e)
         {
             _settings.PHSettings.HighValue = double.Parse(tbHighPH.Text);
-            Settings.Save(_settings);
+            Utilities.Settings.Save(_settings);
         }
 
       
         private void tbOffset_Leave(object sender, EventArgs e)
         {
-            SendOffset();
+            SendPHOffset();
         }
 
+        private void tbTDSOffset_Leave(object sender, EventArgs e)
+        {
+            SendTDSOffset();
+        }
+        private async void SendTDSOffset()
+        {
+            var offsetString = tbTDSOffset.Text;
+            if (string.IsNullOrWhiteSpace(offsetString))
+            {
+                tbTDSOffset.Text = _settings.TDSSettings.Offset.ToString();
+                return;
+            }
+            double offset = Convert.ToDouble(offsetString);
+
+            _settings.TDSSettings.Offset = offset;
+
+            Utilities.Settings.Save(_settings);
+
+            try
+            {
+                await Task.Run(() =>
+                {
+
+                    System.Net.WebClient wc = new System.Net.WebClient();
+
+                    //http://192.168.10.102/SetPHOffset/3.4
+
+                    string webData = wc.DownloadString(string.Format("http://{0}/SetTDSOffset/{1}", _settings.SensorIP, _settings.TDSSettings.Offset));
+                    WaterSensorMessage msg = WaterSensorMessage.Deserialize(webData);
+                    Logging.Log(msg.msg);
+                    Status.SetStatus("Updated TDS Offset");
+
+                });
+            }
+            catch (Exception ex)
+            {
+                Logging.LogError(ex.Message);
+                Status.SetStatus("Failed to update TDS Offset", Status.StatusType.ConnError);
+            }
+        }
         private void cbOffsetNegative_CheckedChanged(object sender, EventArgs e)
         {
-            SendOffset();
+            SendPHOffset();
         }
-        private void SendOffset()
+        private async void SendPHOffset()
         {
-            var offsetString = tbOffset.Text;
+            var offsetString = tbPHOffset.Text;
+            if (string.IsNullOrWhiteSpace(offsetString))
+            {
+                tbPHOffset.Text = _settings.PHSettings.Offset.ToString();
+                return;
+            }
             double offset = Convert.ToDouble(offsetString);
 
             if (cbOffsetNegative.Checked)
@@ -402,34 +298,305 @@ namespace AquariumArduinoClient
 
             _settings.PHSettings.Offset = offset;
 
-            Settings.Save(_settings);
+            Utilities.Settings.Save(_settings);
 
-            if (!_isConnected) return;
-            // Create command FloatAddition, which will wait for a return command FloatAdditionResult
-            var command = new SendCommand((int)Command.SetPHOffset, (int)Command.SetPHOffsetResult, 1000);
-
-
-
-            command.AddArgument((float)offset);
-
-            // Send command
-            var cmdResult = _cmdMessenger.SendCommand(command);
-
-            // Check if received a (valid) response
-            if (cmdResult.Ok)
+            try
             {
-                // Read returned argument
-                var returnedOffset = cmdResult.ReadFloatArg();
-                if (Math.Round(returnedOffset, 2) != Math.Round(offset, 2))
-                    LogCommand("Returned Offset doesnt match: " + returnedOffset);
+                await Task.Run(() =>
+                {
 
+                    System.Net.WebClient wc = new System.Net.WebClient();
+
+                    //http://192.168.10.102/SetPHOffset/3.4
+
+                    string webData = wc.DownloadString(string.Format("http://{0}/SetPHOffset/{1}", _settings.SensorIP, _settings.PHSettings.Offset));
+                    WaterSensorMessage msg = WaterSensorMessage.Deserialize(webData);
+                    Logging.Log(msg.msg);
+                    Status.SetStatus("Updated PH Offset");
+
+                });
             }
-            else
-                LogCommand("Offset - No response!");
+            catch (Exception ex)
+            {
+                Logging.LogError(ex.Message);
+                Status.SetStatus("Failed to Update PH Offset", Status.StatusType.ConnError);
+            }
+
+
+            //if (!_isConnected) return;
+            //// Create command FloatAddition, which will wait for a return command FloatAdditionResult
+            //var command = new SendCommand((int)Command.SetPHOffset, (int)Command.SetPHOffsetResult, 1000);
+
+
+
+            //command.AddArgument((float)offset);
+
+            //// Send command
+            //var cmdResult = _cmdMessenger.SendCommand(command);
+
+            //// Check if received a (valid) response
+            //if (cmdResult.Ok)
+            //{
+            //    // Read returned argument
+            //    var returnedOffset = cmdResult.ReadFloatArg();
+            //    if (Math.Round(returnedOffset, 2) != Math.Round(offset, 2))
+            //        LogCommand("Returned Offset doesnt match: " + returnedOffset);
+
+            //}
+            //else
+            //    LogCommand("Offset - No response!");
 
             // Stop running loop
             //RunLoop = false;
         }
+
+        private void timerGetSensorData_Tick(object sender, EventArgs e)
+        {
+            GetSensorData();
+        }
+
+        private void tbSensorIP1_Leave(object sender, EventArgs e)
+        {
+            string sensorIp = tbSensorIP1.Text + "." + tbSensorIP2.Text + "." + tbSensorIP3.Text + "." + tbSensorIP4.Text;
+            _settings.SensorIP = sensorIp;
+            Settings.Save(_settings);
+
+        }
+
+        private void btnRead_Click(object sender, EventArgs e)
+        {
+            GetSensorData();
+        }
+
+        private void tbGetSenValsEvery_Leave(object sender, EventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(tbGetSenValsEvery.Text)) return;
+            _settings.GetSensorValsEvery = int.Parse(tbGetSenValsEvery.Text);
+            Settings.Save(_settings);
+            if (_settings.GetSensorValsEvery > 0)
+            {
+                timerGetSensorData.Interval = _settings.GetSensorValsEvery * 60 * 1000;
+            }
+        }
+
+
+
+
+
+        //private void SetupComm()
+        //{
+
+        //    // Create Serial Port object
+        //    // Note that for some boards (e.g. Sparkfun Pro Micro) DtrEnable may need to be true.
+        //    _serialTransport = new SerialTransport { CurrentSerialSettings = { DtrEnable = false, BaudRate=9600 } };
+
+        //    // Initialize the command messenger with the Serial Port transport layer
+        //    // Set if it is communicating with a 16- or 32-bit Arduino board
+        //    _cmdMessenger = new CmdMessenger(_serialTransport, BoardType.Bit16)
+        //    {
+        //        PrintLfCr = false, // Do not print newLine at end of command, to reduce data being sent
+        //    };
+
+        //    // Tell CmdMessenger to "Invoke" commands on the thread running the WinForms UI
+        //    _cmdMessenger.ControlToInvokeOn = this;
+
+        //    // Set Received command strategy that removes commands that are older than 1 sec
+        //    _cmdMessenger.AddReceiveCommandStrategy(new StaleGeneralStrategy(10000));
+
+        //    // Attach the callbacks to the Command Messenger
+        //    AttachCommandCallBacks();
+
+        //    // The Connection manager is capable or storing connection settings, in order to reconnect more quickly  
+        //    // the next time the application is run. You can determine yourself where and how to store the settings
+        //    // by supplying a class, that implements ISerialConnectionStorer. For convenience, CmdMessenger provides
+        //    //  simple binary file storage functionality
+        //    var serialConnectionStorer = new SerialConnectionStorer("SerialConnectionManagerSettings.cfg");
+
+        //    // We don't need to provide a handler for the Identify command - this is a job for Connection Manager.
+        //    _connectionManager = new SerialConnectionManager(
+        //        _serialTransport as SerialTransport,
+        //        _cmdMessenger,
+        //        (int)Command.Identify,
+        //        CommunicationIdentifier,
+        //        serialConnectionStorer)
+        //    {
+        //        WatchdogTimeout = 10000,
+        //        WatchdogRetryTimeout = 6000,
+
+        //        DeviceScanBaudRateSelection = false, //only use baudrate in serial settings
+
+        //        // Enable watchdog functionality.
+        //        WatchdogEnabled = true,
+
+        //        // Instead of scanning for the connected port, you can disable scanning and only try the port set in CurrentSerialSettings
+        //        //DeviceScanEnabled = false
+        //    };
+
+        //    // Show all connection progress on command line             
+        //    _connectionManager.Progress += (sender, eventArgs) =>
+        //    {
+        //        // If you want to reduce verbosity, you can only show events of level <=2 or ==1
+        //        if (eventArgs.Level <= 3) LogCommand(eventArgs.Description);
+        //    };
+
+        //    // If connection found, tell the arduino to turn the (internal) led on
+        //    _connectionManager.ConnectionFound += (sender, eventArgs) =>
+        //    {
+        //        // Create command
+        //        var command = new SendCommand((int)Command.StartLogging);
+        //        // Send command
+        //        _cmdMessenger.SendCommand(command);
+        //        //lblComPort.Text = "Arduino Port: " + _serialTransport.CurrentSerialSettings.PortName;
+        //    };
+
+        //    //You can also do something when the connection is lost
+        //    _connectionManager.ConnectionTimeout += (sender, eventArgs) =>
+        //    {
+        //        //Do something
+        //        _isConnected = false;
+        //        //lblComPort.Text = "Arduino Port: Not Found";
+        //        SendEmail("Arduino Water Sensor Disconnected from PC", "Arduino Water Sensor Disconnected from PC at :"+ DateTime.Now.ToString());
+        //    };
+
+        //    // Attach to NewLinesReceived for logging purposes
+        //    _cmdMessenger.NewLineReceived += NewLineReceived;
+
+        //    // Attach to NewLineSent for logging purposes
+        //    _cmdMessenger.NewLineSent += NewLineSent;
+
+        //    // Finally - activate connection manager
+        //    _connectionManager.StartConnectionManager();
+
+
+        //}
+
+        //// Exit function
+        //public void CloseComm()
+        //{
+        //    try
+        //    {
+        //        //_cmdMessenger.NewLineReceived -= NewLineReceived;
+
+        //        //_cmdMessenger.NewLineSent -= NewLineSent;
+
+        //        _connectionManager.Dispose();
+        //        // Stop listening
+        //        _cmdMessenger.Disconnect();
+
+        //        lblPH.Text = "PH: Not Connected!";
+        //        lblPH.ForeColor = Color.Red;
+
+        //        // Dispose Command Messenger
+        //        _cmdMessenger.Dispose();
+
+        //        // Dispose Serial Port object
+        //        _serialTransport.Dispose();
+        //    }
+        //    catch
+        //    {
+        //        try
+        //        {
+        //            // Dispose Command Messenger
+        //            _cmdMessenger.Dispose();
+
+        //            // Dispose Serial Port object
+        //            _serialTransport.Dispose();
+        //        }
+        //        catch
+        //        {
+        //            try
+        //            {
+        //                // Dispose Serial Port object
+        //                _serialTransport.Dispose();
+        //            }
+        //            catch
+        //            {
+        //            }
+        //        }
+        //    }
+        //    _isConnected = false;
+        //    Settings.Save(_settings);
+        //}
+
+        ///// Attach command call backs. 
+        //private void AttachCommandCallBacks()
+        //{
+        //    _cmdMessenger.Attach(OnUnknownCommand);
+        //    _cmdMessenger.Attach((int)Command.Acknowledge, OnAcknowledge);
+        //    _cmdMessenger.Attach((int)Command.Error, OnError);
+        //    _cmdMessenger.Attach((int)Command.SendPH, OnSendPH);
+        //}
+
+        //// ------------------  CALLBACKS ---------------------
+
+        //// Called when a received command has no attached function.
+        //// In a WinForm application, console output gets routed to the output panel of your IDE
+        //void OnUnknownCommand(ReceivedCommand arguments)
+        //{
+        //    LogCommand(@"Command without attached callback received");
+        //}
+
+        //// Callback function that prints that the Arduino has acknowledged
+        //void OnAcknowledge(ReceivedCommand arguments)
+        //{
+        //    LogCommand(@" Arduino is ready");
+        //}
+
+        //// Callback function that prints that the Arduino has experienced an error
+        //void OnError(ReceivedCommand arguments)
+        //{
+        //    LogCommand(@"Arduino has experienced an error");
+        //}
+
+        //// Callback function that Gets PH
+        //private void OnSendPH(ReceivedCommand arguments)
+        //{
+        //    var time = arguments.ReadFloatArg();
+        //    var phVal = arguments.ReadFloatArg();
+        //    var voltsVal = arguments.ReadFloatArg();
+
+        //    TimeSpan runtime = TimeSpan.FromSeconds(time);
+
+        //    LogCommand(@"PHSend > PH=" + phVal+ ", V=" + voltsVal, runtime);
+        //    PHLogController.Log(phVal);
+        //    lblPH.Text = "PH: " + phVal;
+        //    lblPH.ForeColor = Color.Green;
+        //    if (phVal > _settings.PHSettings.HighValue)
+        //    {
+        //        SendEmailAlert("PH is High! - " + phVal, DateTime.Now.ToString() + " PH: " + phVal);
+        //        lblPH.ForeColor = Color.Red;
+        //    }
+        //    if (phVal < _settings.PHSettings.LowValue)
+        //    {
+        //        SendEmailAlert("PH is Low! - " + phVal, DateTime.Now.ToString() + " PH: " + phVal);
+        //        lblPH.ForeColor = Color.Red;
+        //    }
+
+        //}
+
+        //private void LogCommand(string text, TimeSpan runtime)
+        //{
+        //    string minSec = runtime.ToString(@"hh\:mm\:ss");
+        //    text = minSec + " - "+ text;
+        //    LogCommand(text);
+        //}
+        //private void LogCommand(string text)
+        //{
+        //    tbCmdLog.AppendLine(text, 100);
+        //}
+
+        //// Log received line to console
+        //private void NewLineReceived(object sender, CommandEventArgs e)
+        //{
+        //    _isConnected = true;
+        //    LogCommand(@"Received > " + e.Command.CommandString());
+        //}
+
+        //// Log sent line to console
+        //private void NewLineSent(object sender, CommandEventArgs e)
+        //{
+        //    LogCommand(@"Sent > " + e.Command.CommandString());
+        //}
     }
 }
     

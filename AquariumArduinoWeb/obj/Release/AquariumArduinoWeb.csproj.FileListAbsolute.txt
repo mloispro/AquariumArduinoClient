@@ -148,6 +148,7 @@ C:\Projects\AquariumArduinoClient\AquariumArduinoWeb\obj\Release\Package\Package
 C:\Projects\AquariumArduinoClient\AquariumArduinoWeb\obj\Release\Package\PackageTmp\Views\Manage\VerifyPhoneNumber.cshtml
 C:\Projects\AquariumArduinoClient\AquariumArduinoWeb\obj\Release\Package\PackageTmp\Views\Shared\Lockout.cshtml
 C:\Projects\AquariumArduinoClient\AquariumArduinoWeb\obj\Release\Package\PackageTmp\Views\Shared\_LoginPartial.cshtml
+C:\Projects\AquariumArduinoClient\AquariumArduinoWeb\obj\Release\Package\PackageTmp\Views\Home\_SensorCharts.cshtml
 C:\Projects\AquariumArduinoClient\AquariumArduinoWeb\obj\Release\Package\PackageTmp\packages.config
 C:\Projects\AquariumArduinoClient\AquariumArduinoWeb\obj\Release\Package\PackageTmp\Scripts\jquery-3.1.0.slim.min.map
 C:\Projects\AquariumArduinoClient\AquariumArduinoWeb\obj\Release\Package\PackageTmp\Scripts\jquery-3.1.0.min.map

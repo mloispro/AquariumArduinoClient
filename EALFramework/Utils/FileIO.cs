@@ -235,57 +235,50 @@ namespace EALFramework.Utils
             if (obj == null) obj = new T();
             return obj;
         }
+        private static SemaphoreSlim m_lockFile = new SemaphoreSlim(initialCount: 1);
         public async static Task SaveJsonObject<T>(T obj, string filename)
         {
             //var binDir = System.Reflection.Assembly.GetExecutingAssembly().Location;
 
             var file = Globals.UserSettingsDir + @"\" + filename;
 
-            await Task.Factory.StartNew(() =>
+           // File.Delete(file);
+
+            bool isSerialized = false;
+            string json = "";
+            while (!isSerialized)
             {
-
-                
-
-                //create bakup
-                if (File.Exists(file))
+                try
                 {
-                    FileIO.EnsureFileClosed(file).Wait();
-                    string bakFile = file + "_bak";
-                    if (File.Exists(bakFile))
-                    {
-                        FileIO.EnsureFileClosed(bakFile).Wait();
-                        File.Delete(bakFile);
-                    }
 
-                    if (!File.Exists(bakFile))
-                        File.Create(bakFile).Close();
-
-                    FileIO.EnsureFileClosed(bakFile).Wait();
-                    File.Copy(file, bakFile, true);
-                    //MessageBox.Show("created bak: " + bakFile);
+                    json = JsonConvert.SerializeObject(obj);
+                    isSerialized = true;
                 }
+                catch
+                {
+                    isSerialized = false;
+                    Task.Delay(100).Wait();
+                }
+            }
 
+            
+            await m_lockFile.WaitAsync();
+            try
+            {
+                //await WriteTextToLog();
                 File.Delete(file);
-
-                bool isSerialized = false;
-                string json = "";
-                while (!isSerialized)
-                {
-                    try
-                    {
-
-                        json = JsonConvert.SerializeObject(obj);
-                        isSerialized = true;
-                    }
-                    catch
-                    {
-                        isSerialized = false;
-                        Task.Delay(100).Wait();
-                    }
-                }
-
+                //await File.CreateText(file).WriteAsync(json);
                 File.WriteAllText(file, json);
-            });
+                await EnsureFileClosed(file);
+
+            }
+            finally
+            {
+                m_lockFile.Release();
+            }
+
+            
+            
 
         }
 

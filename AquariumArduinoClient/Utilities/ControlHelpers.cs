@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AquariumArduinoClient.Controls;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
@@ -25,7 +26,36 @@ namespace AquariumArduinoClient.Utilities
                 ctrl.Text = text;
             }
         }
-       
+        public static void SetControlText(this StatusStrip ctrl, ToolStripStatusLabel lbl, string text)
+        {
+            SetControlText(  ctrl,  lbl,  text, Color.Black);
+        }
+        public static void SetControlText(this StatusStrip ctrl, ToolStripStatusLabel lbl, string text, Color color)
+        {
+            if (ctrl.InvokeRequired)
+            {
+                ctrl.BeginInvoke(new Action(() => lbl.Text = text));
+                ctrl.BeginInvoke(new Action(() => lbl.ForeColor = color));
+            }
+            else
+            {
+                lbl.Text = text;
+                lbl.ForeColor = color;
+            }
+        }
+        
+        public static void AppendText(this TextBox ctrl, string text)
+        {
+            //text += Environment.NewLine;
+            if (ctrl.InvokeRequired)
+            {
+                ctrl.BeginInvoke(new Action(() => ctrl.AppendLine(text,1000)));
+            }
+            else
+            {
+                ctrl.AppendLine(text,1000);
+            }
+        }
         public static void EnableForm(this Form frm, bool enable = true)
         {
             try
@@ -44,6 +74,15 @@ namespace AquariumArduinoClient.Utilities
             catch (ObjectDisposedException ex)
             {
 
+            }
+        }
+        public static void WaitSeconds(int seconds)
+        {
+            if (seconds < 1) return;
+            DateTime waitTime = DateTime.Now.AddSeconds(seconds);
+            while (DateTime.Now < waitTime)
+            {
+                System.Windows.Forms.Application.DoEvents();
             }
         }
         public static async Task Sleep(int milliseconds)

@@ -5,13 +5,11 @@ using System.Web;
 
 namespace AquariumArduinoWeb.Models
 {
-
-    public class PHModel
+    public class TDSModel
     {
         public SampleFrequency Frequency { get; set; }
-        public List<double> PHVal { get; set; }
+        public List<double> TDSVal { get; set; }
         public List<string> SampleDate { get; set; }
-        public double CurrentPH { get; set; }
-
+        public double CurrentTDS{ get; set; }
     }
 }

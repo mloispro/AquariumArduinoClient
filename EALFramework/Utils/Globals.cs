@@ -12,7 +12,8 @@ namespace EALFramework.Utils
         public static string UserSettingsDir = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\AquariumArduinoClient";
         public static string AppDir;
         public static string PHLogFileName = "PHLog.json";
-        public static double SavePHLogEveryMin = 5;
-        public static int MaxPHLogs = 1000;
+        public static string TDSLogFileName = "TDSLog.json";
+        public static double SaveLogEveryMin = 5;
+        public static int MaxLogs = 1000;
     }
 }

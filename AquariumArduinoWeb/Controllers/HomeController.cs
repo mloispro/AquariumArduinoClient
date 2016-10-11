@@ -14,14 +14,32 @@ namespace EALFramework.Controllers
     {
         public ActionResult Index()
         {
-            List<PHLog> phLogs = PHLogController.GetLogs();
+            return View();
+        }
+        public ActionResult _SensorCharts()
+        {
+            return PartialView("_SensorCharts",PopulateModel());
+        }
 
-            PHModel model = new PHModel();
-            model.Frequency = PHSampleFrequency.Raw;
-            model.SampleDate = phLogs.Select(x => x.LogDate.ToShortTimeString()).ToList();
-            model.PHVal = phLogs.Select(x => x.PhVal).ToList();
+        private WaterSensorModel PopulateModel()
+        {
+            WaterSensorModel model = new WaterSensorModel();
 
-            return View(model);
+            List<PHLog> phLogs = WaterSensorController.GetHourlySummaryPHLogs();
+
+            model.PHModel.Frequency = SampleFrequency.Hourly;
+            model.PHModel.SampleDate = phLogs.Select(x => string.Format("{0:htt}", x.LogDate)).ToList();
+            model.PHModel.PHVal = phLogs.Select(x => Math.Round(x.PhVal, 2)).ToList();
+            model.PHModel.CurrentPH = WaterSensorController.CurrentPH;
+
+            List<TDSLog> tdsLogs = WaterSensorController.GetHourlySummaryTdsLogs();
+
+            model.TDSModel.Frequency = SampleFrequency.Hourly;
+            model.TDSModel.SampleDate = tdsLogs.Select(x => string.Format("{0:htt}", x.LogDate)).ToList();
+            model.TDSModel.TDSVal = tdsLogs.Select(x => Math.Round(x.TdsVal, 0)).ToList();
+            model.TDSModel.CurrentTDS = WaterSensorController.CurrentTDS;
+
+            return model;
         }
 
         public ActionResult About()

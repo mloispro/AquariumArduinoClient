@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AquariumArduinoClient.Controls;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -12,14 +13,21 @@ namespace AquariumArduinoClient.Utilities
     {
         //System.IO.Log.
         private static ListBox _log;
+        private static TextBox _tbLog;
         private static ToolStripStatusLabel _lblStatusText;
         private static StatusStrip _statusBar;
 
-        public static void Init(ListBox log, StatusStrip statusBar, ToolStripStatusLabel lblStatusText)
+        //public static void Init(ListBox log, StatusStrip statusBar, ToolStripStatusLabel lblStatusText)
+        //{
+        //    _log = log;
+        //    _lblStatusText = lblStatusText;
+        //    _statusBar = statusBar;
+        //}
+        public static void Init(TextBox tbLog)
         {
-            _log = log;
-            _lblStatusText = lblStatusText;
-            _statusBar = statusBar;
+            _tbLog = tbLog;
+            //_lblStatusText = lblStatusText;
+            //_statusBar = statusBar;
         }
 
         public static void Log(this ListBox log, string text)
@@ -42,15 +50,47 @@ namespace AquariumArduinoClient.Utilities
 
             }
         }
+        public static void Log(this TextBox log, string text)
+        {
+            try
+            {
+                _tbLog = log;
+                text = DateTime.Now + " - " + text;
+                if (log.InvokeRequired)
+                {
+                    log.BeginInvoke(new Action(() => log.AppendLine(text, 100)));
+                }
+                else
+                {
+                    log.AppendLine(text, 100);
+                }
+            }
+            catch (ObjectDisposedException ex)
+            {
+
+            }
+        }
+        public static void Log(this TextBox log, string text, params object[] args)
+        {
+            _tbLog = log;
+            log.Log(string.Format(text, args));
+        }
+        //public static void Log(string text)
+        //{
+        //    _tbLog.Log(text);
+        //}
+        public static void Log(string text)
+        {
+            text = DateTime.Now +" - " + text;
+            ControlHelpers.AppendText(_tbLog, text);
+            //_tbLog.Log(text);
+        }
         public static void Log(this ListBox log, string text, params object[] args)
         {
             _log = log;
             log.Log(string.Format(text, args));
         }
-        public static void Log(string text)
-        {
-            _log.Log(text);
-        }
+        
         public static void LogError(string errorMessage)
         {
             Log("Error: " + errorMessage);

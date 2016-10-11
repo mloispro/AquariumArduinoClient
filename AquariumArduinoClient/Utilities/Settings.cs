@@ -9,15 +9,19 @@ using System.Windows.Forms;
 using Newtonsoft.Json;
 using AquariumArduinoClient.Models;
 using EALFramework.Utils;
+using System.Threading;
 
 namespace AquariumArduinoClient.Utilities
 {
     public class Settings
     {
-        
-        public  PHSettings PHSettings;
-        public  string UserSettingsDir;
-        public  string AppDir;
+
+        public PHSettings PHSettings;
+        public TDSSettings TDSSettings;
+        public string UserSettingsDir;
+        public string AppDir;
+        public string SensorIP;
+        public int GetSensorValsEvery;
         //public const string DefaultOpenVPNDirectory = @"C:\Program Files (x86)\OpenVPN";
         //public const string DefaultVPNBookConfigDownload = @"http://www.vpnbook.com/free-openvpn-account/VPNBook.com-OpenVPN-Euro1.zip";
         //public const string DefaultVPNBookCredsPage = @"http://www.vpnbook.com/freevpn";
@@ -94,7 +98,7 @@ namespace AquariumArduinoClient.Utilities
         //    {
         //        _settings.UserSettingsDir = Application.UserAppDataPath;
         //        _settings.AppDir = Application.StartupPath;
-                
+
         //        Save(_settings);
         //    }
         //    if (_settings != null &&
@@ -114,12 +118,16 @@ namespace AquariumArduinoClient.Utilities
                 //FillOPNVPNConfigs();
                 return _settings;
             }
-           
+
             _settings = FileIO.GetJsonObject<Settings>("settings.json");
 
-            if (_settings.PHSettings==null)
+            if (_settings.PHSettings == null)
             {
                 _settings.PHSettings = new Models.PHSettings { HighValue = 7.0, LowValue = 6.2, Offset = 1.1 };
+            }
+            if (_settings.TDSSettings == null)
+            {
+                _settings.TDSSettings = new Models.TDSSettings { HighValue = 220, LowValue = 180, Offset = 340 };
             }
             //if (string.IsNullOrWhiteSpace(_settings.OpenVPNDirectory))
             //{
@@ -145,18 +153,30 @@ namespace AquariumArduinoClient.Utilities
             return _settings;
         }
 
-        public static void Save(Settings settings)
+       
+        public static async void Save(Settings settings)
         {
+
+
+            
+                //await WriteTextToLog();
+                await FileIO.SaveJsonObject(settings, "settings.json");
+
+           
+
+            _settings = settings;
             //if (string.IsNullOrWhiteSpace(settings.OpenVPNDirectory))
             //{
             //    settings.OpenVPNDirectory = DefaultOpenVPNDirectory;
             //}
-            FileIO.SaveJsonObject(settings, "settings.json");
+
             //Logging.Log("Saved Settings To: " + UserSettingsDir);
             //MessageBox.Show("Saved Settings To: " + UserSettingsDir);
-            _settings = settings;
+
+
+
+
+
         }
-
-
     }
 }
