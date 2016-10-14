@@ -15,10 +15,15 @@
     @*@{Html.RenderAction("_SensorCharts");}*@
     @Html.Action("_SensorCharts")
 </div>
+
 @section scripts{
     @Scripts.Render("~/bundles/jqueryval")
+
+
 <script type="text/javascript">
     $(function () {
+        //Chart.defaults.global
+        //Chart.defaults.global.scaleLabel = "       <%%=value%>";
         var url = '@Url.Action("_SensorCharts")';
 
         setInterval(function () {

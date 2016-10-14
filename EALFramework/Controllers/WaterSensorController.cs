@@ -88,7 +88,21 @@ namespace EALFramework.Controllers
 
             return hourlyPhLogs;
         }
-        public static List<PHLog> GetHourlySummaryPHLogs()
+        public static List<PHLog> GetDailySummaryPhLogs()
+        {
+
+            _rawPHLogs = GetPHLogs();
+
+            var logs = _rawPHLogs.GroupBy(x => new DateTime(x.LogDate.Year, x.LogDate.Month, x.LogDate.Day, 0, 0, 0))
+                  .Select(g => new PHLog
+                  {
+                      LogDate = g.Key,
+                      PhVal = g.Average(i => i.PhVal)
+                  }).OrderBy(x => x.LogDate).ToList();
+
+            return logs;
+        }
+        public static List<PHLog> GetHourlySummaryPHLogs(int numOfDays)
         {
 
             _rawPHLogs = GetPHLogs();
@@ -98,7 +112,9 @@ namespace EALFramework.Controllers
                   {
                       LogDate = g.Key,
                       PhVal = g.Average(i => i.PhVal)
-                  }).OrderBy(x => x.LogDate).ToList();
+                  })
+                  .Where(x => x.LogDate >= DateTime.Now.Date.AddDays(numOfDays * -1))
+                  .OrderBy(x => x.LogDate).ToList();
 
             return logs;
         }
@@ -116,7 +132,7 @@ namespace EALFramework.Controllers
 
             return logs;
         }
-        public static List<TDSLog> GetHourlySummaryTdsLogs()
+        public static List<TDSLog> GetHourlySummaryTdsLogs(int numOfDays)
         {
 
             _rawTdsLogs = GetTDSLogs();
@@ -126,7 +142,9 @@ namespace EALFramework.Controllers
                   {
                       LogDate = g.Key,
                       TdsVal = g.Average(i => i.TdsVal)
-                  }).OrderBy(x => x.LogDate).ToList();
+                  })
+                  .Where(x=>x.LogDate >= DateTime.Now.Date.AddDays(numOfDays*-1))
+                  .OrderBy(x => x.LogDate).ToList();
 
             return logs;
         }

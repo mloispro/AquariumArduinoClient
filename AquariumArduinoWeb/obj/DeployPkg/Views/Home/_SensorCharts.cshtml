@@ -9,71 +9,143 @@
 <script src="~/Scripts/Chart.js"></script>
 
 <h2>Tank 1 Water Sensors</h2>
-<h3 style="color:steelblue">PH: @Model.PHModel.CurrentPH</h3>
-<h3 style="color:darkorange">TDS: @Model.TDSModel.CurrentTDS</h3>
+<h3 style="color:steelblue">PH: @Model.PHModel.CurrentPH&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Daily Avg: @Model.PHModel.DailyAvgPH</h3>
+<h3 style="color:darkorange">TDS: @Model.TDSModel.CurrentTDS&nbsp;&nbsp; &nbsp;&nbsp;Daily Avg: @Model.TDSModel.DailyAvgTDS</h3>
 <div class="row">
+    @*<div style="font-weight:bold;text-align:center" class="panel-heading">Hourly PH</div>*@
     <div class="col-md-6">
-        <div class="panel">
-            <div style="font-weight:bold;text-align:center" class="panel-heading">Hourly PH</div>
-            <div class="panel-body">
+    <h3>Hourly PH</h3>
                 
-                    @{
-                        var phChart = new LineChart();
-                        phChart.ComplexData.Labels.AddRange(Model.PHModel.SampleDate);
-                        phChart.ComplexData.Datasets.AddRange(new List<ComplexDataset>
+    @{
+        var phChart = new LineChart();
+        phChart.ComplexData.Labels.AddRange(Model.PHModel.SampleDate);
+        phChart.ComplexData.Datasets.AddRange(new List<ComplexDataset>
         {
-        new ComplexDataset
+            new ComplexDataset
             {
                 Data = Model.PHModel.PHVal,
-                Label = @Model.Frequency.GetType().Name,
+                Label = "PhHourly",
                 FillColor = "rgba(70,130,180,0.2)",
                 StrokeColor = "rgba(70,130,180,1)",
                 PointColor = "rgba(70,130,180,1)",
                 PointStrokeColor = "#fff",
                 PointHighlightFill = "#fff",
                 PointHighlightStroke = "rgba(70,130,180,1)",
-        }
-    });
-                    }
-                    <canvas id="phCanvas" width="500" height="400"></canvas>
-                    @Html.CreateChart("phCanvas", phChart)
-                
-            </div>
-        </div>
+            }
+        });
+
+        //phChart.ComplexData.Labels.AddRange(Model.PHModel.SampleDay);
+        //phChart.ComplexData.Datasets.AddRange(new List<ComplexDataset>
+        //{
+        //    new ComplexDataset
+        //    {
+        //        Data = Model.PHModel.PHHourlyDailyVal,
+        //        Label = "PhDaily",
+        //        FillColor = "rgba(70,130,180,0.2)",
+        //        StrokeColor = "rgba(70,130,180,1)",
+        //        PointColor = "rgba(70,130,180,1)",
+        //        PointStrokeColor = "#fff",
+        //        PointHighlightFill = "#fff",
+        //        PointHighlightStroke = "rgba(70,130,180,1)",
+        //    }
+        //});
+    }
+    <canvas id="phCanvas" width="500" height="400"></canvas>
+    @Html.CreateChart("phCanvas", phChart)
+               
     </div>
     <div class="col-md-6">
-        <div class="panel">
-            <div style="font-weight:bold;text-align:center" class="panel-heading">Hourly TDS</div>
-            <div class="panel-body">
-              
-                    @{
-                        var tdsChart = new LineChart();
-                        tdsChart.ComplexData.Labels.AddRange(Model.TDSModel.SampleDate);
-                        tdsChart.ComplexData.Datasets.AddRange(new List<ComplexDataset>
-        {
-        new ComplexDataset
-            {
-                Data = Model.TDSModel.TDSVal,
-                Label = "TDS",
-                FillColor = "rgba(255,140,0,0.2)",
-                StrokeColor = "rgba(255,140,0,1)",
-                PointColor = "rgba(255,140,0,1)",
-                PointStrokeColor = "#fff",
-                PointHighlightFill = "#fff",
-                PointHighlightStroke = "rgba(255,140,0,1)",
-        }
+    <h3>Hourly TDS</h3>
       
-    });
-                    }
-                    <canvas id="tdsCanvas" width="500" height="400"></canvas>
-                    @Html.CreateChart("tdsCanvas", tdsChart)
-                
-               
-            </div>
-        </div>
+    @*<div style="font-weight:bold;text-align:center" class="panel-heading">Hourly TDS</div>*@
+  
+              
+        @{
+            var tdsChart = new LineChart();
+            tdsChart.ComplexData.Labels.AddRange(Model.TDSModel.SampleDate);
+            tdsChart.ComplexData.Datasets.AddRange(new List<ComplexDataset>
+            {
+            new ComplexDataset
+                {
+                    Data = Model.TDSModel.TDSVal,
+                    Label = "TDS",
+                    FillColor = "rgba(255,140,0,0.2)",
+                    StrokeColor = "rgba(255,140,0,1)",
+                    PointColor = "rgba(255,140,0,1)",
+                    PointStrokeColor = "#fff",
+                    PointHighlightFill = "#fff",
+                    PointHighlightStroke = "rgba(255,140,0,1)",
+                }
+
+            });
+        }
+     
+   <canvas id="tdsCanvas" width="500" height="400"></canvas>
+       
+    @Html.CreateChart("tdsCanvas", tdsChart)
+
     </div>
 </div>
+<div class="row">
+    @*<div style="font-weight:bold;text-align:center" class="panel-heading">Hourly PH</div>*@
+    <div class="col-md-6">
+        <h3>Daily PH</h3>
 
+        @{
+            var phDailyChart = new LineChart();
+            phDailyChart.ComplexData.Labels.AddRange(Model.PHModel.SampleDay);
+            phDailyChart.ComplexData.Datasets.AddRange(new List<ComplexDataset>
+            {
+                new ComplexDataset
+                {
+                    Data = Model.PHModel.PHDailyVal,
+                    Label = "PhHourly",
+                    FillColor = "rgba(70,130,180,0.2)",
+                    StrokeColor = "rgba(70,130,180,1)",
+                    PointColor = "rgba(70,130,180,1)",
+                    PointStrokeColor = "#fff",
+                    PointHighlightFill = "#fff",
+                    PointHighlightStroke = "rgba(70,130,180,1)",
+                }
+            });
+
+        }
+        <canvas id="phDailyCanvas" width="500" height="400"></canvas>
+        @Html.CreateChart("phDailyCanvas", phDailyChart)
+
+    </div>
+    <div class="col-md-6">
+        <h3>Daily TDS</h3>
+
+        @*<div style="font-weight:bold;text-align:center" class="panel-heading">Hourly TDS</div>*@
+
+
+        @{
+            var tdsDailyChart = new LineChart();
+            tdsDailyChart.ComplexData.Labels.AddRange(Model.TDSModel.SampleDay);
+            tdsDailyChart.ComplexData.Datasets.AddRange(new List<ComplexDataset>
+            {
+            new ComplexDataset
+                {
+                    Data = Model.TDSModel.TDSDailyVal,
+                    Label = "TDS",
+                    FillColor = "rgba(255,140,0,0.2)",
+                    StrokeColor = "rgba(255,140,0,1)",
+                    PointColor = "rgba(255,140,0,1)",
+                    PointStrokeColor = "#fff",
+                    PointHighlightFill = "#fff",
+                    PointHighlightStroke = "rgba(255,140,0,1)",
+                }
+
+            });
+        }
+
+        <canvas id="tdsDailyCanvas" width="500" height="400"></canvas>
+
+        @Html.CreateChart("tdsDailyCanvas", tdsDailyChart)
+
+    </div>
+</div>
 
 
 

@@ -2,9 +2,6 @@ C:\Projects\AquariumArduinoClient\AquariumArduinoClient.Test\bin\Release\Aquariu
 C:\Projects\AquariumArduinoClient\AquariumArduinoClient.Test\bin\Release\AquariumArduinoClient.Test.pdb
 C:\Projects\AquariumArduinoClient\AquariumArduinoClient.Test\bin\Release\AquariumArduinoClient.exe
 C:\Projects\AquariumArduinoClient\AquariumArduinoClient.Test\bin\Release\EALFramework.dll
-C:\Projects\AquariumArduinoClient\AquariumArduinoClient.Test\bin\Release\Microsoft.VisualStudio.QualityTools.UnitTestFramework.dll
-C:\Projects\AquariumArduinoClient\AquariumArduinoClient.Test\bin\Release\CommandMessenger.Transport.Serial.dll
-C:\Projects\AquariumArduinoClient\AquariumArduinoClient.Test\bin\Release\CommandMessenger.dll
 C:\Projects\AquariumArduinoClient\AquariumArduinoClient.Test\bin\Release\Newtonsoft.Json.dll
 C:\Projects\AquariumArduinoClient\AquariumArduinoClient.Test\bin\Release\AquariumArduinoClient.pdb
 C:\Projects\AquariumArduinoClient\AquariumArduinoClient.Test\bin\Release\EALFramework.pdb

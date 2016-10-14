@@ -25,21 +25,33 @@ namespace EALFramework.Controllers
         {
             WaterSensorModel model = new WaterSensorModel();
 
-            List<PHLog> phLogs = WaterSensorController.GetHourlySummaryPHLogs();
+            List<PHLog> phLogs = WaterSensorController.GetHourlySummaryPHLogs(2);
 
             model.PHModel.Frequency = SampleFrequency.Hourly;
             model.PHModel.SampleDate = phLogs.Select(x => string.Format("{0:htt}", x.LogDate)).ToList();
             model.PHModel.PHVal = phLogs.Select(x => Math.Round(x.PhVal, 2)).ToList();
             model.PHModel.CurrentPH = WaterSensorController.CurrentPH;
-            model.PHModel.DailyPH = WaterSensorController.GetDailyPh();
+            model.PHModel.DailyAvgPH = WaterSensorController.GetDailyPh();
 
-            List<TDSLog> tdsLogs = WaterSensorController.GetHourlySummaryTdsLogs();
+            //daily summary
+            List<PHLog> phDailyLogs = WaterSensorController.GetDailySummaryPhLogs();
+            model.PHModel.SampleDay = phDailyLogs.Select(x => string.Format("{0:d}", x.LogDate)).ToList();
+            model.PHModel.PHDailyVal = phDailyLogs.Select(x => Math.Round(x.PhVal, 2)).ToList();
+
+            List<TDSLog> tdsLogs = WaterSensorController.GetHourlySummaryTdsLogs(2);
 
             model.TDSModel.Frequency = SampleFrequency.Hourly;
             model.TDSModel.SampleDate = tdsLogs.Select(x => string.Format("{0:htt}", x.LogDate)).ToList();
             model.TDSModel.TDSVal = tdsLogs.Select(x => Math.Round(x.TdsVal, 0)).ToList();
             model.TDSModel.CurrentTDS = WaterSensorController.CurrentTDS;
-            model.TDSModel.DailyTDS = WaterSensorController.GetDailyTds();
+            model.TDSModel.DailyAvgTDS = WaterSensorController.GetDailyTds();
+
+            //daily summary
+            List<TDSLog> tdsDailyLogs = WaterSensorController.GetDailySummaryTdsLogs();
+            model.TDSModel.SampleDay = tdsDailyLogs.Select(x => string.Format("{0:d}", x.LogDate)).ToList();
+            model.TDSModel.TDSDailyVal = tdsDailyLogs.Select(x => Math.Round(x.TdsVal, 2)).ToList();
+
+            
 
             return model;
         }

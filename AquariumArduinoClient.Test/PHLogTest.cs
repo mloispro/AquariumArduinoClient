@@ -6,6 +6,10 @@ using System.Threading;
 using EALFramework.Utils;
 using EALFramework.Models;
 using EALFramework.Controllers;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+
 
 namespace AquariumArduinoClient.Test
 {
@@ -17,7 +21,32 @@ namespace AquariumArduinoClient.Test
         [TestMethod]
         public void TestGetHourlyLogs()
         {
-            var rawLogs = WaterSensorController.GetHourlySummaryTdsLogs();
+            var phHourlyLogs = WaterSensorController.GetHourlySummaryPHLogs(2);
+            List<PHLog> phDailyLogs = WaterSensorController.GetDailySummaryPhLogs();
+            List<PHLog> phHourlyDailyLogs = new List<PHLog>();
+            phHourlyDailyLogs.AddRange(phHourlyLogs);
+            foreach (var hourlyLog in phHourlyDailyLogs)
+            {
+                var dailyLog = phDailyLogs.Find(x => x.LogDate.Day == hourlyLog.LogDate.Day);
+
+                if (dailyLog != null)
+                {
+                    hourlyLog.PhVal = dailyLog.PhVal;
+                }
+            }
+            //foreach (var hourlyLog in phHourlyLogs)
+            //{
+            //    var dailyLog = phDailyLogs.Find(x => x.LogDate == hourlyLog.LogDate);
+               
+            //    if (dailyLog != null)
+            //    {
+            //        phHourlyDailyLogs.Add(dailyLog);
+            //    }
+            //    else
+            //    {
+            //        phHourlyDailyLogs.Add(hourlyLog);
+            //    }
+            //}
             //var hourlyAvg = WaterSensorController.GetHourlyPhAverage();
             //var dailyAvg = WaterSensorController.GetDailyPh();
 
