@@ -186,6 +186,17 @@ namespace EALFramework.Controllers
 
             return Math.Round(avg,0);
         }
+        public static double GetWeeklyTds()
+        {
+            double avg = 0;
+
+            var logs = _rawTdsLogs.FindAll(x =>
+                x.LogDate >= DateTime.Now.Date.AddDays(-7));
+
+            avg = GetAverageTds(logs);
+
+            return Math.Round(avg, 0);
+        }
         public static double GetDailyPh()
         {
             double avg = 0;
@@ -194,6 +205,17 @@ namespace EALFramework.Controllers
                 x.LogDate.Day == DateTime.Now.Day);
 
             avg = GetAveragePh(dailyPhLogs);
+
+            return Math.Round(avg, 2);
+        }
+        public static double GetWeeklyPh()
+        {
+            double avg = 0;
+
+            var logs = _rawPHLogs.FindAll(x =>
+                x.LogDate >= DateTime.Now.Date.AddDays(-7));
+
+            avg = GetAveragePh(logs);
 
             return Math.Round(avg, 2);
         }

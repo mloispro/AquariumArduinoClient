@@ -14,6 +14,7 @@ namespace AquariumArduinoWeb.Models
         public List<string> SampleDate { get; set; }
         public double CurrentPH { get; set; }
         public double DailyAvgPH { get; set; }
+        public double WeeklyAvgPH { get; set; }
 
         //daily
         public List<double> PHDailyVal { get; set; }

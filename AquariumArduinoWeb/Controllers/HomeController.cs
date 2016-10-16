@@ -32,6 +32,7 @@ namespace EALFramework.Controllers
             model.PHModel.PHVal = phLogs.Select(x => Math.Round(x.PhVal, 2)).ToList();
             model.PHModel.CurrentPH = WaterSensorController.CurrentPH;
             model.PHModel.DailyAvgPH = WaterSensorController.GetDailyPh();
+            model.PHModel.WeeklyAvgPH = WaterSensorController.GetWeeklyPh();
 
             //daily summary
             List<PHLog> phDailyLogs = WaterSensorController.GetDailySummaryPhLogs();
@@ -45,6 +46,7 @@ namespace EALFramework.Controllers
             model.TDSModel.TDSVal = tdsLogs.Select(x => Math.Round(x.TdsVal, 0)).ToList();
             model.TDSModel.CurrentTDS = WaterSensorController.CurrentTDS;
             model.TDSModel.DailyAvgTDS = WaterSensorController.GetDailyTds();
+            model.TDSModel.WeeklyAvgTDS = WaterSensorController.GetWeeklyTds();
 
             //daily summary
             List<TDSLog> tdsDailyLogs = WaterSensorController.GetDailySummaryTdsLogs();

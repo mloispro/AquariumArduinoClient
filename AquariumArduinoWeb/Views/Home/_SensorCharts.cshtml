@@ -7,17 +7,36 @@
 @model WaterSensorModel
 
 <script src="~/Scripts/Chart.js"></script>
+<script type="text/javascript">
+    Chart.defaults.global.scaleLabel = " <%=value%>";
+</script>
+<style>
+    h3 span.space {
+    padding-left:22px;
+}
+</style>
 
 <h2>Tank 1 Water Sensors</h2>
-<h3 style="color:steelblue">PH: @Model.PHModel.CurrentPH&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Daily Avg: @Model.PHModel.DailyAvgPH</h3>
-<h3 style="color:darkorange">TDS: @Model.TDSModel.CurrentTDS&nbsp;&nbsp; &nbsp;&nbsp;Daily Avg: @Model.TDSModel.DailyAvgTDS</h3>
+<h3 style="color:steelblue">PH: @Model.PHModel.CurrentPH
+    <span class="space">Daily Avg: @Model.PHModel.DailyAvgPH</span>
+    <span class="space">Weekly Avg: @Model.PHModel.WeeklyAvgPH</span>
+</h3>
+<h3 style="color:darkorange">TDS: @Model.TDSModel.CurrentTDS
+    <span class="space">Daily Avg: @Model.TDSModel.DailyAvgTDS</span>
+    <span class="space">Weekly Avg: @Model.TDSModel.WeeklyAvgTDS</span>
+</h3>
 <div class="row">
     @*<div style="font-weight:bold;text-align:center" class="panel-heading">Hourly PH</div>*@
     <div class="col-md-6">
     <h3>Hourly PH</h3>
-                
+
     @{
         var phChart = new LineChart();
+        phChart.ChartConfiguration.ScaleStartValue = 5;
+        phChart.ChartConfiguration.ScaleSteps = 6;
+        phChart.ChartConfiguration.ScaleOverride = true;
+        phChart.ChartConfiguration.ScaleStepWidth = .5;
+        //phChart.ChartConfiguration.ScaleFontStyle
         phChart.ComplexData.Labels.AddRange(Model.PHModel.SampleDate);
         phChart.ComplexData.Datasets.AddRange(new List<ComplexDataset>
         {
@@ -52,14 +71,14 @@
     }
     <canvas id="phCanvas" width="500" height="400"></canvas>
     @Html.CreateChart("phCanvas", phChart)
-               
+
     </div>
     <div class="col-md-6">
     <h3>Hourly TDS</h3>
-      
+
     @*<div style="font-weight:bold;text-align:center" class="panel-heading">Hourly TDS</div>*@
-  
-              
+
+
         @{
             var tdsChart = new LineChart();
             tdsChart.ComplexData.Labels.AddRange(Model.TDSModel.SampleDate);
@@ -79,9 +98,9 @@
 
             });
         }
-     
+
    <canvas id="tdsCanvas" width="500" height="400"></canvas>
-       
+
     @Html.CreateChart("tdsCanvas", tdsChart)
 
     </div>
