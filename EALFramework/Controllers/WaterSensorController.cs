@@ -27,6 +27,7 @@ namespace EALFramework.Controllers
                 if (_rawPHLogs.Count > Globals.MaxLogs)
                 {
                     _rawPHLogs.RemoveRange(0, Globals.MaxLogs / 2);
+                    FileIO.SaveJson(_rawPHLogs, Globals.PHLogFileName);
                 }
 
                 var log = new PHLog { LogDate = DateTime.Now, PhVal = phVal };
@@ -52,11 +53,14 @@ namespace EALFramework.Controllers
         }
         public static void LogTds(double tdsVal)
         {
+
             if (DateTime.Now > _lastTdsSave.AddMinutes(Globals.SaveLogEveryMin))
             {
-                if (_rawTdsLogs.Count > Globals.MaxLogs)
+                if (_rawTdsLogs.Count >= Globals.MaxLogs)
                 {
+                    //prune
                     _rawTdsLogs.RemoveRange(0, Globals.MaxLogs / 2);
+                    FileIO.SaveJson(_rawTdsLogs, Globals.TDSLogFileName);
                 }
 
                 var log = new TDSLog { LogDate = DateTime.Now, TdsVal = tdsVal };

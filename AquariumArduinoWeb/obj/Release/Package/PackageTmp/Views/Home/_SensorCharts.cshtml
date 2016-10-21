@@ -9,6 +9,7 @@
 <script src="~/Scripts/Chart.js"></script>
 <script type="text/javascript">
     Chart.defaults.global.scaleLabel = " <%=value%>";
+
 </script>
 <style>
     h3 span.space {
@@ -36,6 +37,9 @@
         phChart.ChartConfiguration.ScaleSteps = 6;
         phChart.ChartConfiguration.ScaleOverride = true;
         phChart.ChartConfiguration.ScaleStepWidth = .5;
+        
+        //phChart.ChartConfiguration.TooltipTemplate = "toolTipPh";
+        //phChart.ChartConfiguration.MultiTooltipTemplate = "toolTipPhMultiple";
         //phChart.ChartConfiguration.ScaleFontStyle
         phChart.ComplexData.Labels.AddRange(Model.PHModel.SampleDate);
         phChart.ComplexData.Datasets.AddRange(new List<ComplexDataset>

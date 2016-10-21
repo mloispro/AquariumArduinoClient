@@ -14,6 +14,6 @@ namespace EALFramework.Utils
         public static string PHLogFileName = "PHLog.json";
         public static string TDSLogFileName = "TDSLog.json";
         public static double SaveLogEveryMin = 5;
-        public static int MaxLogs = 1000;
+        public static int MaxLogs = 2000;
     }
 }

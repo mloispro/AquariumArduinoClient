@@ -39,11 +39,17 @@ namespace AquariumArduinoClient.Models
             if (data.reading == "ph")
             {
                 //log tds
-                WaterSensorController.LogTds(data.tds);
+                if (data.tds >= 20 && data.tds <= 340)
+                {
+                    WaterSensorController.LogTds(data.tds);
+                }
             }else
             {
-                //lob ph
-                WaterSensorController.LogPh(data.ph);
+                //log ph
+                if (data.ph >= 4 && data.ph <= 9.4)
+                {
+                    WaterSensorController.LogPh(data.ph);
+                }
             }
             return data;
         }
