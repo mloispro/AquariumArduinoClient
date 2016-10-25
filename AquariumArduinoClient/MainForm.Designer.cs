@@ -37,6 +37,30 @@
             this.btnRead = new System.Windows.Forms.Button();
             this.lblTDS = new System.Windows.Forms.Label();
             this.tabPageSettings = new System.Windows.Forms.TabPage();
+            this.panel2 = new System.Windows.Forms.Panel();
+            this.button1 = new System.Windows.Forms.Button();
+            this.dtpNextRun = new System.Windows.Forms.DateTimePicker();
+            this.label20 = new System.Windows.Forms.Label();
+            this.cbRunEvery = new System.Windows.Forms.ComboBox();
+            this.label18 = new System.Windows.Forms.Label();
+            this.cbRunDuration = new System.Windows.Forms.ComboBox();
+            this.label17 = new System.Windows.Forms.Label();
+            this.label16 = new System.Windows.Forms.Label();
+            this.cbEnabled = new System.Windows.Forms.CheckBox();
+            this.cbContrAccUpdate = new System.Windows.Forms.ComboBox();
+            this.label15 = new System.Windows.Forms.Label();
+            this.tbGetContValsEvery = new System.Windows.Forms.MaskedTextBox();
+            this.label14 = new System.Windows.Forms.Label();
+            this.label10 = new System.Windows.Forms.Label();
+            this.tbContIP4 = new System.Windows.Forms.TextBox();
+            this.label11 = new System.Windows.Forms.Label();
+            this.tbContIP3 = new System.Windows.Forms.TextBox();
+            this.tbContIP2 = new System.Windows.Forms.TextBox();
+            this.label12 = new System.Windows.Forms.Label();
+            this.tbContIP1 = new System.Windows.Forms.TextBox();
+            this.label13 = new System.Windows.Forms.Label();
+            this.tbGetSenValsEvery = new System.Windows.Forms.MaskedTextBox();
+            this.label9 = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
             this.label1 = new System.Windows.Forms.Label();
             this.tbTDSOffset = new System.Windows.Forms.MaskedTextBox();
@@ -59,11 +83,11 @@
             this.statusBar = new System.Windows.Forms.StatusStrip();
             this.lblConnectionStatus = new System.Windows.Forms.ToolStripStatusLabel();
             this.lblStatusMsg = new System.Windows.Forms.ToolStripStatusLabel();
-            this.label9 = new System.Windows.Forms.Label();
-            this.tbGetSenValsEvery = new System.Windows.Forms.MaskedTextBox();
+            this.timerGetControllerData = new System.Windows.Forms.Timer(this.components);
             this.tabSettings.SuspendLayout();
             this.tbReadings.SuspendLayout();
             this.tabPageSettings.SuspendLayout();
+            this.panel2.SuspendLayout();
             this.panel1.SuspendLayout();
             this.statusBar.SuspendLayout();
             this.SuspendLayout();
@@ -136,6 +160,17 @@
             // 
             // tabPageSettings
             // 
+            this.tabPageSettings.Controls.Add(this.panel2);
+            this.tabPageSettings.Controls.Add(this.tbGetContValsEvery);
+            this.tabPageSettings.Controls.Add(this.label14);
+            this.tabPageSettings.Controls.Add(this.label10);
+            this.tabPageSettings.Controls.Add(this.tbContIP4);
+            this.tabPageSettings.Controls.Add(this.label11);
+            this.tabPageSettings.Controls.Add(this.tbContIP3);
+            this.tabPageSettings.Controls.Add(this.tbContIP2);
+            this.tabPageSettings.Controls.Add(this.label12);
+            this.tabPageSettings.Controls.Add(this.tbContIP1);
+            this.tabPageSettings.Controls.Add(this.label13);
             this.tabPageSettings.Controls.Add(this.tbGetSenValsEvery);
             this.tabPageSettings.Controls.Add(this.label9);
             this.tabPageSettings.Controls.Add(this.panel1);
@@ -155,8 +190,238 @@
             this.tabPageSettings.Text = "Settings";
             this.tabPageSettings.UseVisualStyleBackColor = true;
             // 
+            // panel2
+            // 
+            this.panel2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panel2.Controls.Add(this.button1);
+            this.panel2.Controls.Add(this.dtpNextRun);
+            this.panel2.Controls.Add(this.label20);
+            this.panel2.Controls.Add(this.cbRunEvery);
+            this.panel2.Controls.Add(this.label18);
+            this.panel2.Controls.Add(this.cbRunDuration);
+            this.panel2.Controls.Add(this.label17);
+            this.panel2.Controls.Add(this.label16);
+            this.panel2.Controls.Add(this.cbEnabled);
+            this.panel2.Controls.Add(this.cbContrAccUpdate);
+            this.panel2.Controls.Add(this.label15);
+            this.panel2.Location = new System.Drawing.Point(277, 83);
+            this.panel2.Name = "panel2";
+            this.panel2.Size = new System.Drawing.Size(291, 153);
+            this.panel2.TabIndex = 30;
+            // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(106, 122);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(75, 23);
+            this.button1.TabIndex = 25;
+            this.button1.Text = "Update";
+            this.button1.UseVisualStyleBackColor = true;
+            // 
+            // dtpNextRun
+            // 
+            this.dtpNextRun.CustomFormat = "MM/dd/yyyy h:mm:ss tt";
+            this.dtpNextRun.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
+            this.dtpNextRun.Location = new System.Drawing.Point(79, 96);
+            this.dtpNextRun.MinDate = new System.DateTime(2016, 10, 25, 0, 0, 0, 0);
+            this.dtpNextRun.Name = "dtpNextRun";
+            this.dtpNextRun.Size = new System.Drawing.Size(200, 20);
+            this.dtpNextRun.TabIndex = 24;
+            // 
+            // label20
+            // 
+            this.label20.AutoSize = true;
+            this.label20.Location = new System.Drawing.Point(19, 100);
+            this.label20.Name = "label20";
+            this.label20.Size = new System.Drawing.Size(58, 13);
+            this.label20.TabIndex = 23;
+            this.label20.Text = "Next Run: ";
+            // 
+            // cbRunEvery
+            // 
+            this.cbRunEvery.FormattingEnabled = true;
+            this.cbRunEvery.Location = new System.Drawing.Point(79, 68);
+            this.cbRunEvery.Name = "cbRunEvery";
+            this.cbRunEvery.Size = new System.Drawing.Size(200, 21);
+            this.cbRunEvery.TabIndex = 21;
+            // 
+            // label18
+            // 
+            this.label18.AutoSize = true;
+            this.label18.Location = new System.Drawing.Point(44, 71);
+            this.label18.Name = "label18";
+            this.label18.Size = new System.Drawing.Size(33, 13);
+            this.label18.TabIndex = 20;
+            this.label18.Text = "Run: ";
+            // 
+            // cbRunDuration
+            // 
+            this.cbRunDuration.FormattingEnabled = true;
+            this.cbRunDuration.Location = new System.Drawing.Point(79, 41);
+            this.cbRunDuration.Name = "cbRunDuration";
+            this.cbRunDuration.Size = new System.Drawing.Size(79, 21);
+            this.cbRunDuration.TabIndex = 19;
+            // 
+            // label17
+            // 
+            this.label17.AutoSize = true;
+            this.label17.Location = new System.Drawing.Point(164, 44);
+            this.label17.Name = "label17";
+            this.label17.Size = new System.Drawing.Size(44, 13);
+            this.label17.TabIndex = 18;
+            this.label17.Text = "Minutes";
+            // 
+            // label16
+            // 
+            this.label16.AutoSize = true;
+            this.label16.Location = new System.Drawing.Point(5, 44);
+            this.label16.Name = "label16";
+            this.label16.Size = new System.Drawing.Size(76, 13);
+            this.label16.TabIndex = 17;
+            this.label16.Text = "Run Duration: ";
+            // 
+            // cbEnabled
+            // 
+            this.cbEnabled.AutoSize = true;
+            this.cbEnabled.Location = new System.Drawing.Point(223, 15);
+            this.cbEnabled.Name = "cbEnabled";
+            this.cbEnabled.Size = new System.Drawing.Size(65, 17);
+            this.cbEnabled.TabIndex = 16;
+            this.cbEnabled.Text = "Enabled";
+            this.cbEnabled.UseVisualStyleBackColor = true;
+            // 
+            // cbContrAccUpdate
+            // 
+            this.cbContrAccUpdate.FormattingEnabled = true;
+            this.cbContrAccUpdate.Location = new System.Drawing.Point(78, 13);
+            this.cbContrAccUpdate.Name = "cbContrAccUpdate";
+            this.cbContrAccUpdate.Size = new System.Drawing.Size(121, 21);
+            this.cbContrAccUpdate.TabIndex = 7;
+            this.cbContrAccUpdate.SelectedIndexChanged += new System.EventHandler(this.cbContrAccUpdate_SelectedIndexChanged);
+            // 
+            // label15
+            // 
+            this.label15.AutoSize = true;
+            this.label15.Location = new System.Drawing.Point(15, 16);
+            this.label15.Name = "label15";
+            this.label15.Size = new System.Drawing.Size(62, 13);
+            this.label15.TabIndex = 6;
+            this.label15.Text = "Accessory: ";
+            // 
+            // tbGetContValsEvery
+            // 
+            this.tbGetContValsEvery.Location = new System.Drawing.Point(430, 46);
+            this.tbGetContValsEvery.Mask = "00";
+            this.tbGetContValsEvery.Name = "tbGetContValsEvery";
+            this.tbGetContValsEvery.Size = new System.Drawing.Size(36, 20);
+            this.tbGetContValsEvery.TabIndex = 29;
+            this.tbGetContValsEvery.Leave += new System.EventHandler(this.tbGetContValsEvery_Leave);
+            // 
+            // label14
+            // 
+            this.label14.AutoSize = true;
+            this.label14.Location = new System.Drawing.Point(274, 49);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(156, 13);
+            this.label14.TabIndex = 28;
+            this.label14.Text = "Get Controller Vals Every (Min): ";
+            // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label10.Location = new System.Drawing.Point(469, 12);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(16, 24);
+            this.label10.TabIndex = 27;
+            this.label10.Text = ".";
+            // 
+            // tbContIP4
+            // 
+            this.tbContIP4.Location = new System.Drawing.Point(485, 12);
+            this.tbContIP4.MaxLength = 3;
+            this.tbContIP4.Name = "tbContIP4";
+            this.tbContIP4.Size = new System.Drawing.Size(28, 20);
+            this.tbContIP4.TabIndex = 26;
+            this.tbContIP4.Leave += new System.EventHandler(this.tbContIP1_Leave);
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label11.Location = new System.Drawing.Point(425, 12);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(16, 24);
+            this.label11.TabIndex = 25;
+            this.label11.Text = ".";
+            // 
+            // tbContIP3
+            // 
+            this.tbContIP3.Location = new System.Drawing.Point(441, 12);
+            this.tbContIP3.MaxLength = 3;
+            this.tbContIP3.Name = "tbContIP3";
+            this.tbContIP3.Size = new System.Drawing.Size(28, 20);
+            this.tbContIP3.TabIndex = 24;
+            this.tbContIP3.Leave += new System.EventHandler(this.tbContIP1_Leave);
+            // 
+            // tbContIP2
+            // 
+            this.tbContIP2.Location = new System.Drawing.Point(396, 12);
+            this.tbContIP2.MaxLength = 3;
+            this.tbContIP2.Name = "tbContIP2";
+            this.tbContIP2.Size = new System.Drawing.Size(28, 20);
+            this.tbContIP2.TabIndex = 23;
+            this.tbContIP2.Leave += new System.EventHandler(this.tbContIP1_Leave);
+            // 
+            // label12
+            // 
+            this.label12.AutoSize = true;
+            this.label12.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label12.Location = new System.Drawing.Point(380, 12);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(16, 24);
+            this.label12.TabIndex = 22;
+            this.label12.Text = ".";
+            // 
+            // tbContIP1
+            // 
+            this.tbContIP1.Location = new System.Drawing.Point(350, 12);
+            this.tbContIP1.MaxLength = 3;
+            this.tbContIP1.Name = "tbContIP1";
+            this.tbContIP1.Size = new System.Drawing.Size(28, 20);
+            this.tbContIP1.TabIndex = 21;
+            this.tbContIP1.Leave += new System.EventHandler(this.tbContIP1_Leave);
+            // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Location = new System.Drawing.Point(274, 15);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(70, 13);
+            this.label13.TabIndex = 20;
+            this.label13.Text = "Controller IP: ";
+            // 
+            // tbGetSenValsEvery
+            // 
+            this.tbGetSenValsEvery.Location = new System.Drawing.Point(152, 46);
+            this.tbGetSenValsEvery.Mask = "00";
+            this.tbGetSenValsEvery.Name = "tbGetSenValsEvery";
+            this.tbGetSenValsEvery.Size = new System.Drawing.Size(36, 20);
+            this.tbGetSenValsEvery.TabIndex = 19;
+            this.tbGetSenValsEvery.Leave += new System.EventHandler(this.tbGetSenValsEvery_Leave);
+            // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(8, 49);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(145, 13);
+            this.label9.TabIndex = 18;
+            this.label9.Text = "Get Sensor Vals Every (Min): ";
+            // 
             // panel1
             // 
+            this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.panel1.Controls.Add(this.label1);
             this.panel1.Controls.Add(this.tbTDSOffset);
             this.panel1.Controls.Add(this.label8);
@@ -166,7 +431,7 @@
             this.panel1.Controls.Add(this.tbPHOffset);
             this.panel1.Controls.Add(this.label3);
             this.panel1.Controls.Add(this.cbOffsetNegative);
-            this.panel1.Location = new System.Drawing.Point(175, 90);
+            this.panel1.Location = new System.Drawing.Point(11, 83);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(226, 106);
             this.panel1.TabIndex = 17;
@@ -358,23 +623,10 @@
             this.lblStatusMsg.Size = new System.Drawing.Size(69, 19);
             this.lblStatusMsg.Text = "Status Msg";
             // 
-            // label9
+            // timerGetControllerData
             // 
-            this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(8, 49);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(145, 13);
-            this.label9.TabIndex = 18;
-            this.label9.Text = "Get Sensor Vals Every (Min): ";
-            // 
-            // tbGetSenValsEvery
-            // 
-            this.tbGetSenValsEvery.Location = new System.Drawing.Point(152, 46);
-            this.tbGetSenValsEvery.Mask = "00";
-            this.tbGetSenValsEvery.Name = "tbGetSenValsEvery";
-            this.tbGetSenValsEvery.Size = new System.Drawing.Size(36, 20);
-            this.tbGetSenValsEvery.TabIndex = 19;
-            this.tbGetSenValsEvery.Leave += new System.EventHandler(this.tbGetSenValsEvery_Leave);
+            this.timerGetControllerData.Interval = 2400000;
+            this.timerGetControllerData.Tick += new System.EventHandler(this.timerGetControllerData_Tick);
             // 
             // MainForm
             // 
@@ -392,6 +644,8 @@
             this.tbReadings.PerformLayout();
             this.tabPageSettings.ResumeLayout(false);
             this.tabPageSettings.PerformLayout();
+            this.panel2.ResumeLayout(false);
+            this.panel2.PerformLayout();
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             this.statusBar.ResumeLayout(false);
@@ -433,6 +687,29 @@
         private System.Windows.Forms.ToolStripStatusLabel lblStatusMsg;
         private System.Windows.Forms.MaskedTextBox tbGetSenValsEvery;
         private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.MaskedTextBox tbGetContValsEvery;
+        private System.Windows.Forms.Label label14;
+        private System.Windows.Forms.Label label10;
+        private System.Windows.Forms.TextBox tbContIP4;
+        private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.TextBox tbContIP3;
+        private System.Windows.Forms.TextBox tbContIP2;
+        private System.Windows.Forms.Label label12;
+        private System.Windows.Forms.TextBox tbContIP1;
+        private System.Windows.Forms.Label label13;
+        private System.Windows.Forms.Timer timerGetControllerData;
+        private System.Windows.Forms.Panel panel2;
+        private System.Windows.Forms.ComboBox cbContrAccUpdate;
+        private System.Windows.Forms.Label label15;
+        private System.Windows.Forms.Label label16;
+        private System.Windows.Forms.CheckBox cbEnabled;
+        private System.Windows.Forms.Label label17;
+        private System.Windows.Forms.ComboBox cbRunDuration;
+        private System.Windows.Forms.DateTimePicker dtpNextRun;
+        private System.Windows.Forms.Label label20;
+        private System.Windows.Forms.ComboBox cbRunEvery;
+        private System.Windows.Forms.Label label18;
+        private System.Windows.Forms.Button button1;
     }
 }
 

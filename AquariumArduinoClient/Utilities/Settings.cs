@@ -21,7 +21,9 @@ namespace AquariumArduinoClient.Utilities
         public string UserSettingsDir;
         public string AppDir;
         public string SensorIP;
+        public string ControllerIP;
         public int GetSensorValsEvery;
+        public int GetControllerValsEvery;
         //public const string DefaultOpenVPNDirectory = @"C:\Program Files (x86)\OpenVPN";
         //public const string DefaultVPNBookConfigDownload = @"http://www.vpnbook.com/free-openvpn-account/VPNBook.com-OpenVPN-Euro1.zip";
         //public const string DefaultVPNBookCredsPage = @"http://www.vpnbook.com/freevpn";

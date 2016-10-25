@@ -61,11 +61,15 @@ namespace AquariumArduinoClient
             //lblPH.Text = "PH: Not Connected!";
             //lblPH.ForeColor = Color.Red;
             tbGetSenValsEvery.Text = _settings.GetSensorValsEvery.ToString();
+            tbGetContValsEvery.Text = _settings.GetControllerValsEvery.ToString();
             if (_settings.GetSensorValsEvery > 0)
             {
                 timerGetSensorData.Interval = _settings.GetSensorValsEvery * 60 * 1000;
             }
-
+            if (_settings.GetControllerValsEvery > 0)
+            {
+                timerGetControllerData.Interval = _settings.GetControllerValsEvery * 60 * 1000;
+            }
             if (_settings.PHSettings.Offset < 0)
                 cbOffsetNegative.Checked = true;
 
@@ -84,7 +88,33 @@ namespace AquariumArduinoClient
             {
                 ControlHelpers.ShowMessageBox("Sensor Ip not set.");
             }
+            if (!string.IsNullOrWhiteSpace(_settings.ControllerIP))
+            {
+                List<string> ipSplit = _settings.ControllerIP.Split('.').ToList();
+                if (ipSplit.Count > 0)
+                {
+                    tbContIP1.Text = ipSplit[0];
+                    tbContIP2.Text = ipSplit[1];
+                    tbContIP3.Text = ipSplit[2];
+                    tbContIP4.Text = ipSplit[3];
+                }
+            }
+            else
+            {
+                ControlHelpers.ShowMessageBox("Controller Ip not set.");
+            }
+
+            cbContrAccUpdate.DataSource = AquaControllerCmd.GetCmds();
+            cbContrAccUpdate.DisplayMember = "Name";
+
+            cbRunDuration.DataSource = AquaControllerCmd.PumpRunDur;
+            cbRunDuration.DisplayMember = "Name";
+
+            cbRunEvery.DataSource = AquaControllerCmd.PumpRunEveryInHrs;
+            cbRunEvery.DisplayMember = "Name";
+
             timerGetSensorData.Start();
+            timerGetControllerData.Start();
             //GetSensorData();
            // SetupComm();
 
@@ -127,6 +157,53 @@ namespace AquariumArduinoClient
                     _settings.TDSSettings.Offset = vals.tdsOffset;
                     tbPHOffset.SetControlText(vals.phOffset.ToString());
                     tbTDSOffset.SetControlText(vals.tdsOffset.ToString());
+                });
+            }
+            catch (Exception ex)
+            {
+                Logging.LogError(ex.Message);
+                Status.SetStatus("Failed to get sensor vals", Status.StatusType.ConnError);
+            }
+        }
+
+        private async void GetControllerData()
+        {
+
+
+            if (string.IsNullOrWhiteSpace(_settings.ControllerIP))
+            {
+                //ControlHelpers.ShowMessageBox("Sensor Ip not set.");
+                return;
+            }
+            string controllerIP = _settings.ControllerIP.Replace(" ", "");
+
+            try
+            {
+                await Task.Run(() =>
+                {
+
+                    System.Net.WebClient wc = new System.Net.WebClient();
+
+                    //todo: implement this
+                    //string webData = wc.DownloadString(string.Format("http://{0}/GetSensorVals", controllerIP));
+                    ////string webData = "{\r\n\"host\":\"WaterSensor-1\",\r\n\"ph\":4,\r\n\"tds\":400,\r\n\"phOffset\":3.10,\r\n\"tdsOffset\":1310,\r\n\"reading\":\"ph\",\r\n\"readingDur\":\"115s\",\r\n\"readingInter\":\"600s\"\r\n}\r\n";
+                    //WaterSensorData vals = WaterSensorData.Log(webData);
+
+                    //Status.SetStatus("Retrieved sensor vals");
+                    //if (vals.reading == "ph")
+                    //{
+                    //    Logging.Log("Retrieved TDS sensor vals");
+                    //    lblTDS.SetControlText("TDS: " + vals.tds.ToString());
+                    //}
+                    //else
+                    //{
+                    //    Logging.Log("Retrieved PH sensor vals");
+                    //    lblPH.SetControlText("PH: " + vals.ph.ToString());
+                    //}
+                    //_settings.PHSettings.Offset = vals.phOffset;
+                    //_settings.TDSSettings.Offset = vals.tdsOffset;
+                    //tbPHOffset.SetControlText(vals.phOffset.ToString());
+                    //tbTDSOffset.SetControlText(vals.tdsOffset.ToString());
                 });
             }
             catch (Exception ex)
@@ -354,13 +431,22 @@ namespace AquariumArduinoClient
         {
             GetSensorData();
         }
-
+        private void timerGetControllerData_Tick(object sender, EventArgs e)
+        {
+            GetControllerData();
+        }
         private void tbSensorIP1_Leave(object sender, EventArgs e)
         {
             string sensorIp = tbSensorIP1.Text + "." + tbSensorIP2.Text + "." + tbSensorIP3.Text + "." + tbSensorIP4.Text;
             _settings.SensorIP = sensorIp;
             Settings.Save(_settings);
 
+        }
+        private void tbContIP1_Leave(object sender, EventArgs e)
+        {
+            string contIp = tbContIP1.Text + "." + tbContIP2.Text + "." + tbContIP3.Text + "." + tbContIP4.Text;
+            _settings.ControllerIP = contIp;
+            Settings.Save(_settings);
         }
 
         private void btnRead_Click(object sender, EventArgs e)
@@ -378,6 +464,39 @@ namespace AquariumArduinoClient
                 timerGetSensorData.Interval = _settings.GetSensorValsEvery * 60 * 1000;
             }
         }
+
+        private void tbGetContValsEvery_Leave(object sender, EventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(tbGetContValsEvery.Text)) return;
+            _settings.GetControllerValsEvery = int.Parse(tbGetContValsEvery.Text);
+            Settings.Save(_settings);
+            if (_settings.GetControllerValsEvery > 0)
+            {
+                timerGetControllerData.Interval = _settings.GetControllerValsEvery * 60 * 1000;
+            }
+        }
+
+        private void cbContrAccUpdate_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            AquaControllerCmd cmd = (AquaControllerCmd)cbContrAccUpdate.SelectedItem;
+            if (cmd.TheAccType == AquaControllerCmd.AccType.WaterPump)
+            {
+                cbRunEvery.DataSource = AquaControllerCmd.PumpRunEveryInHrs;
+                cbRunDuration.DataSource = AquaControllerCmd.PumpRunDur;
+            }else
+            {
+                cbRunDuration.DataSource = AquaControllerCmd.MicrosMacrosRunDur;
+                cbRunEvery.DataSource = AquaControllerCmd.MicrosMacrosRunEveryInHrs;
+            }
+        }
+
+       
+
+
+
+
+
+
 
 
 
