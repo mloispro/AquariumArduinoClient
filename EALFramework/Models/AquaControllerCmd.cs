@@ -46,7 +46,7 @@ namespace EALFramework.Models
 
         };
 
-       public static List<AquaControllerCmd> Cmds = new List<AquaControllerCmd>() {
+        public static List<AquaControllerCmd> Cmds = new List<AquaControllerCmd>() {
                 new Models.AquaControllerCmd { TheAccType=AccType.WaterPump, Name="Water Pump",CheckCmd= "/CheckWaterChange",SetCmd= "/SetWaterChange", AccTypeMap=5 },
                 new Models.AquaControllerCmd { TheAccType=AccType.MicrosDoser, Name="Micro Doser",CheckCmd= "/CheckMicrosDose",SetCmd= "/SetMicrosDose",AccTypeMap=3 },
                 new Models.AquaControllerCmd { TheAccType=AccType.MacrosDoser, Name="Macro Doser",CheckCmd= "/CheckMacrosDose",SetCmd= "", AccTypeMap=0 },
@@ -69,25 +69,11 @@ namespace EALFramework.Models
 
             return fullUrl;
         }
-        //public static List<AquaControllerCmd> GetCmds()
-        //{
-        //    //List<string> acc = new List<string>() { "Water Pump", "Micro Doser", "Macro Doser", "Dry Doser" };
-        //    //return acc;
-        //    List<AquaControllerCmd> cmds = new List<AquaControllerCmd>() {
-        //        new Models.AquaControllerCmd { TheAccType=AccType.WaterPump, Name="Water Pump",CheckCmd= "/CheckWaterChange",SetCmd= "/SetWaterChange" },
-        //        new Models.AquaControllerCmd { TheAccType=AccType.MicrosDoser, Name="Micro Doser",CheckCmd= "/CheckMicrosDose",SetCmd= "/SetMicrosDose" },
-        //        new Models.AquaControllerCmd { TheAccType=AccType.MacrosDoser, Name="Macro Doser",CheckCmd= "/CheckMacrosDose",SetCmd= "" },
-        //        new Models.AquaControllerCmd { TheAccType=AccType.DryDoser, Name="Dry Doser",CheckCmd= "/CheckDryDose",SetCmd= "" },
 
-        //    };
 
-        //    return cmds;
-        //}
+
+
+
     }
-
-
-
-  
-
    
 }

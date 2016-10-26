@@ -107,6 +107,8 @@ namespace AquariumArduinoClient
             {
                 ControlHelpers.ShowMessageBox("Controller Ip not set.");
             }
+            cbContrAccInfo.DataSource = AquaControllerCmd.Cmds;
+            cbContrAccInfo.DisplayMember = "Name";
 
             cbContrAccUpdate.DataSource = AquaControllerCmd.Cmds;
             cbContrAccUpdate.DisplayMember = "Name";
@@ -122,6 +124,7 @@ namespace AquariumArduinoClient
             Status.SetStatus("Getting controller data, please wait...");
             
             DataBindUIControllerData();
+            DataBindUIAccInfoData();
             //GetSensorData();
             // SetupComm();
 
@@ -174,44 +177,26 @@ namespace AquariumArduinoClient
             }
         }
 
-        private async void GetControllerData()
+        private async void GetControllerData(bool force=false)
         {
-
-
             if (string.IsNullOrWhiteSpace(_settings.ControllerIP))
             {
-                //ControlHelpers.ShowMessageBox("Sensor Ip not set.");
+                ControlHelpers.ShowMessageBox("Controller Ip not set.");
                 return;
             }
             string controllerIP = _settings.ControllerIP.Replace(" ", "");
 
             try
             {
-                await Task.Run(() =>
-                {
 
-                    System.Net.WebClient wc = new System.Net.WebClient();
-
-                    //todo: implement this
-                    foreach (var cmd in AquaControllerCmd.Cmds)
-                    {
-                        string webData = wc.DownloadString(string.Format("http://{0}{1}", controllerIP, cmd.CheckCmd));
-                        AquaController.ParseRunData(webData);
-                        Thread.Sleep(200);
-                    }
-
-                    //string webData = "{ \"host\":\"AquaController-1\",\"accType\":3,\"lastRun\":1477545006,\"nextRun\":1477566006,\"countDown\":160903,\"runEvery\":172800,\"shakesOrTurns\":0,\"lastSave\":1477405054,\"enabled\":1,\"runDurration\":5,\"updated\":1477405103}";
-                    //AquaController.ParseRunData(webData);
-                   
-                    Status.SetStatus("Retrieved aqua controller run data");
-                    Logging.Log("Retrieved aqua controller run data");
-
-                });
+                string msg = await AquaController.GetControllerData(controllerIP, force);
+                Status.SetStatus(msg);
+                Logging.Log(msg);
             }
             catch (Exception ex)
             {
                 Logging.LogError(ex.Message);
-                Status.SetStatus("Failed to get sensor vals", Status.StatusType.ConnError);
+                Status.SetStatus("Failed to get controller data", Status.StatusType.ConnError);
             }
         }
 
@@ -359,24 +344,12 @@ namespace AquariumArduinoClient
             }
         }
 
-        private async void SendControllerData(RunData data)
+        private async void SendControllerData(RunData data, bool runNow = false)
         {
             try
             {
-                await Task.Run(() =>
-                {
-
-                    System.Net.WebClient wc = new System.Net.WebClient();
-
-                    string url = AquaControllerCmd.FillTemplate(_settings.ControllerIP, data);
-
-                    //todo: uncomment
-                    string webData = wc.DownloadString(url);
-                    var msg = RunDataMessage.Deserialize(webData);
-                    Logging.Log(msg.msg);
-                    Status.SetStatus(msg.msg);
-
-                });
+                string controllerIP = _settings.ControllerIP.Replace(" ", "");
+                string msg = await AquaController.SendControllerData(controllerIP, data, runNow);
             }
             catch (Exception ex)
             {
@@ -463,6 +436,7 @@ namespace AquariumArduinoClient
         private void timerGetControllerData_Tick(object sender, EventArgs e)
         {
             DataBindUIControllerData();
+            DataBindUIAccInfoData();
         }
         private void tbSensorIP1_Leave(object sender, EventArgs e)
         {
@@ -499,6 +473,7 @@ namespace AquariumArduinoClient
             if (string.IsNullOrWhiteSpace(tbGetContValsEvery.Text)) return;
             _settings.GetControllerValsEvery = int.Parse(tbGetContValsEvery.Text);
             Settings.Save(_settings);
+            EALFramework.Utils.Globals.RefreshRunDataEveryMin = _settings.GetControllerValsEvery;
             if (_settings.GetControllerValsEvery > 0)
             {
                 timerGetControllerData.Interval = _settings.GetControllerValsEvery * 60 * 1000;
@@ -593,12 +568,57 @@ namespace AquariumArduinoClient
            
         }
 
+        private void cbContrAccInfo_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            DataBindUIAccInfoData();
+        }
 
 
+        private void DataBindUIAccInfoData()
+        {
+            lblAccRunInfo.Text = "";
 
+            GetControllerData();
 
+            AquaControllerCmd cmd = (AquaControllerCmd)cbContrAccInfo.SelectedItem;
+            var runDataList = AquaController.GetAllRunData();
 
+            bool cmdExists = runDataList.Exists(x => x.accType == cmd.AccTypeMap);
+            if (!cmdExists)
+            {
+                lblAccRunInfo.Text = "diabled";
+                return;
+            }
 
+            RunData data = runDataList.Find(x => x.accType == cmd.AccTypeMap);
+            if (!data.enabled)
+            {
+                lblAccRunInfo.Text = "diabled";
+                return;
+            }
+
+            lblAccRunInfo.Text = string.Format("Next Run: {0:MM/dd/yyyy h:mm tt}{1}Last Run: {2:MM/dd/yyyy h:mm tt}", data.GetNextRun(), Environment.NewLine, data.GetLastRun());
+        }
+
+        private void btnRunNow_Click(object sender, EventArgs e)
+        {
+            DialogResult result = MessageBox.Show("Are you sure you want to run now?", "Verify", MessageBoxButtons.YesNo);
+            if (result == DialogResult.No) return;
+
+            AquaControllerCmd cmd = (AquaControllerCmd)cbContrAccUpdate.SelectedItem;
+            var runDataList = AquaController.GetAllRunData();
+
+            bool cmdExists = runDataList.Exists(x => x.accType == cmd.AccTypeMap);
+            if (!cmdExists) return;
+
+            RunData data = runDataList.Find(x => x.accType == cmd.AccTypeMap);
+            SendControllerData(data, true);
+        }
+
+        private void btnRefresh_Click(object sender, EventArgs e)
+        {
+            GetControllerData(true);
+        }
 
 
 

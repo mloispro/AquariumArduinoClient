@@ -84,6 +84,10 @@
             this.lblConnectionStatus = new System.Windows.Forms.ToolStripStatusLabel();
             this.lblStatusMsg = new System.Windows.Forms.ToolStripStatusLabel();
             this.timerGetControllerData = new System.Windows.Forms.Timer(this.components);
+            this.cbContrAccInfo = new System.Windows.Forms.ComboBox();
+            this.btnRunNow = new System.Windows.Forms.Button();
+            this.lblAccRunInfo = new System.Windows.Forms.Label();
+            this.btnRefresh = new System.Windows.Forms.Button();
             this.tabSettings.SuspendLayout();
             this.tbReadings.SuspendLayout();
             this.tabPageSettings.SuspendLayout();
@@ -95,7 +99,7 @@
             // lblPH
             // 
             this.lblPH.AutoSize = true;
-            this.lblPH.Location = new System.Drawing.Point(27, 12);
+            this.lblPH.Location = new System.Drawing.Point(13, 12);
             this.lblPH.Name = "lblPH";
             this.lblPH.Size = new System.Drawing.Size(25, 13);
             this.lblPH.TabIndex = 4;
@@ -116,6 +120,10 @@
             // 
             // tbReadings
             // 
+            this.tbReadings.Controls.Add(this.btnRefresh);
+            this.tbReadings.Controls.Add(this.lblAccRunInfo);
+            this.tbReadings.Controls.Add(this.btnRunNow);
+            this.tbReadings.Controls.Add(this.cbContrAccInfo);
             this.tbReadings.Controls.Add(this.tbCmdLog);
             this.tbReadings.Controls.Add(this.btnRead);
             this.tbReadings.Controls.Add(this.lblTDS);
@@ -141,9 +149,9 @@
             // 
             // btnRead
             // 
-            this.btnRead.Location = new System.Drawing.Point(306, 12);
+            this.btnRead.Location = new System.Drawing.Point(6, 55);
             this.btnRead.Name = "btnRead";
-            this.btnRead.Size = new System.Drawing.Size(75, 23);
+            this.btnRead.Size = new System.Drawing.Size(58, 23);
             this.btnRead.TabIndex = 13;
             this.btnRead.Text = "Read";
             this.btnRead.UseVisualStyleBackColor = true;
@@ -152,7 +160,7 @@
             // lblTDS
             // 
             this.lblTDS.AutoSize = true;
-            this.lblTDS.Location = new System.Drawing.Point(6, 39);
+            this.lblTDS.Location = new System.Drawing.Point(6, 31);
             this.lblTDS.Name = "lblTDS";
             this.lblTDS.Size = new System.Drawing.Size(32, 13);
             this.lblTDS.TabIndex = 12;
@@ -221,7 +229,7 @@
             // 
             // dtpNextRun
             // 
-            this.dtpNextRun.CustomFormat = "MM/dd/yyyy h:mm:ss tt";
+            this.dtpNextRun.CustomFormat = "MM/dd/yyyy h:mm tt";
             this.dtpNextRun.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
             this.dtpNextRun.Location = new System.Drawing.Point(79, 96);
             this.dtpNextRun.MinDate = new System.DateTime(2000, 10, 25, 0, 0, 0, 0);
@@ -629,6 +637,44 @@
             this.timerGetControllerData.Interval = 2400000;
             this.timerGetControllerData.Tick += new System.EventHandler(this.timerGetControllerData_Tick);
             // 
+            // cbContrAccInfo
+            // 
+            this.cbContrAccInfo.FormattingEnabled = true;
+            this.cbContrAccInfo.Location = new System.Drawing.Point(304, 12);
+            this.cbContrAccInfo.Name = "cbContrAccInfo";
+            this.cbContrAccInfo.Size = new System.Drawing.Size(121, 21);
+            this.cbContrAccInfo.TabIndex = 15;
+            this.cbContrAccInfo.SelectedIndexChanged += new System.EventHandler(this.cbContrAccInfo_SelectedIndexChanged);
+            // 
+            // btnRunNow
+            // 
+            this.btnRunNow.Location = new System.Drawing.Point(507, 10);
+            this.btnRunNow.Name = "btnRunNow";
+            this.btnRunNow.Size = new System.Drawing.Size(61, 23);
+            this.btnRunNow.TabIndex = 16;
+            this.btnRunNow.Text = "Run Now";
+            this.btnRunNow.UseVisualStyleBackColor = true;
+            this.btnRunNow.Click += new System.EventHandler(this.btnRunNow_Click);
+            // 
+            // lblAccRunInfo
+            // 
+            this.lblAccRunInfo.AutoSize = true;
+            this.lblAccRunInfo.Location = new System.Drawing.Point(304, 40);
+            this.lblAccRunInfo.Name = "lblAccRunInfo";
+            this.lblAccRunInfo.Size = new System.Drawing.Size(45, 13);
+            this.lblAccRunInfo.TabIndex = 17;
+            this.lblAccRunInfo.Text = "acc info";
+            // 
+            // btnRefresh
+            // 
+            this.btnRefresh.Location = new System.Drawing.Point(440, 10);
+            this.btnRefresh.Name = "btnRefresh";
+            this.btnRefresh.Size = new System.Drawing.Size(61, 23);
+            this.btnRefresh.TabIndex = 18;
+            this.btnRefresh.Text = "Refresh";
+            this.btnRefresh.UseVisualStyleBackColor = true;
+            this.btnRefresh.Click += new System.EventHandler(this.btnRefresh_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -711,6 +757,10 @@
         private System.Windows.Forms.ComboBox cbRunEvery;
         private System.Windows.Forms.Label label18;
         private System.Windows.Forms.Button btnUpdateAcc;
+        private System.Windows.Forms.ComboBox cbContrAccInfo;
+        private System.Windows.Forms.Button btnRunNow;
+        private System.Windows.Forms.Label lblAccRunInfo;
+        private System.Windows.Forms.Button btnRefresh;
     }
 }
 
