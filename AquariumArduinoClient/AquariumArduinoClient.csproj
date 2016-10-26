@@ -103,8 +103,6 @@
     <Compile Include="MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Models\AquaControllerCmd.cs" />
-    <Compile Include="Models\NameValue.cs" />
     <Compile Include="Models\TDSSettings.cs" />
     <Compile Include="Models\WaterSensorMessage.cs" />
     <Compile Include="Models\WaterSensorData.cs" />

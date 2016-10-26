@@ -44,13 +44,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Class1.cs" />
+    <Compile Include="Controllers\AquaController.cs" />
     <Compile Include="Controllers\WaterSensorController.cs" />
+    <Compile Include="Models\AquaControllerCmd.cs" />
+    <Compile Include="Models\NameValue.cs" />
+    <Compile Include="Models\RunData.cs" />
     <Compile Include="Models\TDSLog.cs" />
     <Compile Include="Models\PHLog.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utils\FileIO.cs" />
     <Compile Include="Utils\Globals.cs" />
+    <Compile Include="Utils\Helpers.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

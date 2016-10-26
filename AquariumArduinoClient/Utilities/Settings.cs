@@ -15,7 +15,7 @@ namespace AquariumArduinoClient.Utilities
 {
     public class Settings
     {
-
+        
         public PHSettings PHSettings;
         public TDSSettings TDSSettings;
         public string UserSettingsDir;

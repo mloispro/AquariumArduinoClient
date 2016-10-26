@@ -19,6 +19,8 @@ using System.Net;
 using AquariumArduinoClient.Utilities;
 using AquariumArduinoClient.Models;
 using EALFramework.Controllers;
+using EALFramework.Models;
+using EALFramework.Utils;
 
 namespace AquariumArduinoClient
 {
@@ -88,6 +90,8 @@ namespace AquariumArduinoClient
             {
                 ControlHelpers.ShowMessageBox("Sensor Ip not set.");
             }
+
+            //populate controller data
             if (!string.IsNullOrWhiteSpace(_settings.ControllerIP))
             {
                 List<string> ipSplit = _settings.ControllerIP.Split('.').ToList();
@@ -104,7 +108,7 @@ namespace AquariumArduinoClient
                 ControlHelpers.ShowMessageBox("Controller Ip not set.");
             }
 
-            cbContrAccUpdate.DataSource = AquaControllerCmd.GetCmds();
+            cbContrAccUpdate.DataSource = AquaControllerCmd.Cmds;
             cbContrAccUpdate.DisplayMember = "Name";
 
             cbRunDuration.DataSource = AquaControllerCmd.PumpRunDur;
@@ -115,11 +119,15 @@ namespace AquariumArduinoClient
 
             timerGetSensorData.Start();
             timerGetControllerData.Start();
+            Status.SetStatus("Getting controller data, please wait...");
+            
+            DataBindUIControllerData();
             //GetSensorData();
-           // SetupComm();
+            // SetupComm();
 
         }
 
+        
         private async void GetSensorData()
         {
 
@@ -185,25 +193,19 @@ namespace AquariumArduinoClient
                     System.Net.WebClient wc = new System.Net.WebClient();
 
                     //todo: implement this
-                    //string webData = wc.DownloadString(string.Format("http://{0}/GetSensorVals", controllerIP));
-                    ////string webData = "{\r\n\"host\":\"WaterSensor-1\",\r\n\"ph\":4,\r\n\"tds\":400,\r\n\"phOffset\":3.10,\r\n\"tdsOffset\":1310,\r\n\"reading\":\"ph\",\r\n\"readingDur\":\"115s\",\r\n\"readingInter\":\"600s\"\r\n}\r\n";
-                    //WaterSensorData vals = WaterSensorData.Log(webData);
+                    foreach (var cmd in AquaControllerCmd.Cmds)
+                    {
+                        string webData = wc.DownloadString(string.Format("http://{0}{1}", controllerIP, cmd.CheckCmd));
+                        AquaController.ParseRunData(webData);
+                        Thread.Sleep(200);
+                    }
 
-                    //Status.SetStatus("Retrieved sensor vals");
-                    //if (vals.reading == "ph")
-                    //{
-                    //    Logging.Log("Retrieved TDS sensor vals");
-                    //    lblTDS.SetControlText("TDS: " + vals.tds.ToString());
-                    //}
-                    //else
-                    //{
-                    //    Logging.Log("Retrieved PH sensor vals");
-                    //    lblPH.SetControlText("PH: " + vals.ph.ToString());
-                    //}
-                    //_settings.PHSettings.Offset = vals.phOffset;
-                    //_settings.TDSSettings.Offset = vals.tdsOffset;
-                    //tbPHOffset.SetControlText(vals.phOffset.ToString());
-                    //tbTDSOffset.SetControlText(vals.tdsOffset.ToString());
+                    //string webData = "{ \"host\":\"AquaController-1\",\"accType\":3,\"lastRun\":1477545006,\"nextRun\":1477566006,\"countDown\":160903,\"runEvery\":172800,\"shakesOrTurns\":0,\"lastSave\":1477405054,\"enabled\":1,\"runDurration\":5,\"updated\":1477405103}";
+                    //AquaController.ParseRunData(webData);
+                   
+                    Status.SetStatus("Retrieved aqua controller run data");
+                    Logging.Log("Retrieved aqua controller run data");
+
                 });
             }
             catch (Exception ex)
@@ -356,6 +358,33 @@ namespace AquariumArduinoClient
                 Status.SetStatus("Failed to update TDS Offset", Status.StatusType.ConnError);
             }
         }
+
+        private async void SendControllerData(RunData data)
+        {
+            try
+            {
+                await Task.Run(() =>
+                {
+
+                    System.Net.WebClient wc = new System.Net.WebClient();
+
+                    string url = AquaControllerCmd.FillTemplate(_settings.ControllerIP, data);
+
+                    //todo: uncomment
+                    string webData = wc.DownloadString(url);
+                    var msg = RunDataMessage.Deserialize(webData);
+                    Logging.Log(msg.msg);
+                    Status.SetStatus(msg.msg);
+
+                });
+            }
+            catch (Exception ex)
+            {
+                Logging.LogError(ex.Message);
+                Status.SetStatus("Failed to update Aqua Controller", Status.StatusType.ConnError);
+            }
+        }
+
         private void cbOffsetNegative_CheckedChanged(object sender, EventArgs e)
         {
             SendPHOffset();
@@ -433,7 +462,7 @@ namespace AquariumArduinoClient
         }
         private void timerGetControllerData_Tick(object sender, EventArgs e)
         {
-            GetControllerData();
+            DataBindUIControllerData();
         }
         private void tbSensorIP1_Leave(object sender, EventArgs e)
         {
@@ -478,19 +507,95 @@ namespace AquariumArduinoClient
 
         private void cbContrAccUpdate_SelectedIndexChanged(object sender, EventArgs e)
         {
+            DataBindUIControllerData();
+        }
+
+        private void DataBindUIControllerData()
+        {
+            GetControllerData();
+
             AquaControllerCmd cmd = (AquaControllerCmd)cbContrAccUpdate.SelectedItem;
-            if (cmd.TheAccType == AquaControllerCmd.AccType.WaterPump)
-            {
+            if (cmd.TheAccType == AquaControllerCmd.AccType.WaterPump ||
+              cmd.TheAccType == AquaControllerCmd.AccType.DryDoser) //putting dry doser here for now, not sure how run ever works on arduino for dry doser.
+            { 
                 cbRunEvery.DataSource = AquaControllerCmd.PumpRunEveryInHrs;
                 cbRunDuration.DataSource = AquaControllerCmd.PumpRunDur;
-            }else
+            }
+            else
             {
                 cbRunDuration.DataSource = AquaControllerCmd.MicrosMacrosRunDur;
                 cbRunEvery.DataSource = AquaControllerCmd.MicrosMacrosRunEveryInHrs;
             }
+            dtpNextRun.Value = DateTime.Now.AddDays(1);
+            cbEnabled.Checked = false;
+
+            SetUIControllerData();
         }
 
-       
+        private void SetUIControllerData()
+        {
+            AquaControllerCmd cmd = (AquaControllerCmd)cbContrAccUpdate.SelectedItem;
+            var runDataList = AquaController.GetAllRunData();
+
+            bool cmdExists = runDataList.Exists(x => x.accType == cmd.AccTypeMap);
+            if (!cmdExists) return;
+
+            RunData data = runDataList.Find(x => x.accType == cmd.AccTypeMap);
+            cbEnabled.Checked = data.enabled;
+            
+            dtpNextRun.Value = data.GetNextRun();
+
+            if (cmd.TheAccType == AquaControllerCmd.AccType.WaterPump ||
+                cmd.TheAccType == AquaControllerCmd.AccType.DryDoser) //putting dry doser here for now, not sure how run ever works on arduino for dry doser.
+            {
+                //var runEvery = AquaControllerCmd.PumpRunEveryInHrs.Find(x => x.Value == data.GetRunEvery().TotalHours);
+                var runEvery = AquaControllerCmd.PumpRunEveryInHrs.FindClosest(data.GetRunEvery().TotalHours);
+                cbRunEvery.Text = runEvery.Name;
+
+                var dur = AquaControllerCmd.PumpRunDur.FindClosest(data.runDurration);
+                cbRunDuration.Text = dur;
+            }
+            else
+            {
+                var runEvery = AquaControllerCmd.MicrosMacrosRunEveryInHrs.FindClosest(data.runEvery);
+                if (runEvery != null)
+                {
+                    cbRunEvery.Text = runEvery.Name;
+                }
+                var dur = AquaControllerCmd.MicrosMacrosRunDur.FindClosest(data.runDurration);
+                cbRunDuration.Text = dur;
+            }
+
+        }
+
+        private void btnUpdateAcc_Click(object sender, EventArgs e)
+        {
+            DialogResult result = MessageBox.Show("Are you sure you want to update accessory?", "Verify", MessageBoxButtons.YesNo);
+            if (result == DialogResult.No) return;
+
+            AquaControllerCmd cmd = (AquaControllerCmd)cbContrAccUpdate.SelectedItem;
+            var runDataList = AquaController.GetAllRunData();
+
+            bool cmdExists = runDataList.Exists(x => x.accType == cmd.AccTypeMap);
+            if (!cmdExists) return;
+
+            RunData data = runDataList.Find(x => x.accType == cmd.AccTypeMap);
+
+            data.enabled = cbEnabled.Checked;
+            data.runDurration = int.Parse(cbRunDuration.Text);
+            data.SetNextRun(dtpNextRun.Value);
+
+            var re = (NameValue<string, int>)cbRunEvery.SelectedItem;
+            data.runEvery = re.Value;
+
+            AquaController.SaveRunData();
+            SendControllerData(data);
+           
+        }
+
+
+
+
 
 
 

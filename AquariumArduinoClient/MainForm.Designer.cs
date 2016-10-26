@@ -38,7 +38,7 @@
             this.lblTDS = new System.Windows.Forms.Label();
             this.tabPageSettings = new System.Windows.Forms.TabPage();
             this.panel2 = new System.Windows.Forms.Panel();
-            this.button1 = new System.Windows.Forms.Button();
+            this.btnUpdateAcc = new System.Windows.Forms.Button();
             this.dtpNextRun = new System.Windows.Forms.DateTimePicker();
             this.label20 = new System.Windows.Forms.Label();
             this.cbRunEvery = new System.Windows.Forms.ComboBox();
@@ -193,7 +193,7 @@
             // panel2
             // 
             this.panel2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.panel2.Controls.Add(this.button1);
+            this.panel2.Controls.Add(this.btnUpdateAcc);
             this.panel2.Controls.Add(this.dtpNextRun);
             this.panel2.Controls.Add(this.label20);
             this.panel2.Controls.Add(this.cbRunEvery);
@@ -209,21 +209,22 @@
             this.panel2.Size = new System.Drawing.Size(291, 153);
             this.panel2.TabIndex = 30;
             // 
-            // button1
+            // btnUpdateAcc
             // 
-            this.button1.Location = new System.Drawing.Point(106, 122);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
-            this.button1.TabIndex = 25;
-            this.button1.Text = "Update";
-            this.button1.UseVisualStyleBackColor = true;
+            this.btnUpdateAcc.Location = new System.Drawing.Point(106, 122);
+            this.btnUpdateAcc.Name = "btnUpdateAcc";
+            this.btnUpdateAcc.Size = new System.Drawing.Size(75, 23);
+            this.btnUpdateAcc.TabIndex = 25;
+            this.btnUpdateAcc.Text = "Update";
+            this.btnUpdateAcc.UseVisualStyleBackColor = true;
+            this.btnUpdateAcc.Click += new System.EventHandler(this.btnUpdateAcc_Click);
             // 
             // dtpNextRun
             // 
             this.dtpNextRun.CustomFormat = "MM/dd/yyyy h:mm:ss tt";
             this.dtpNextRun.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
             this.dtpNextRun.Location = new System.Drawing.Point(79, 96);
-            this.dtpNextRun.MinDate = new System.DateTime(2016, 10, 25, 0, 0, 0, 0);
+            this.dtpNextRun.MinDate = new System.DateTime(2000, 10, 25, 0, 0, 0, 0);
             this.dtpNextRun.Name = "dtpNextRun";
             this.dtpNextRun.Size = new System.Drawing.Size(200, 20);
             this.dtpNextRun.TabIndex = 24;
@@ -709,7 +710,7 @@
         private System.Windows.Forms.Label label20;
         private System.Windows.Forms.ComboBox cbRunEvery;
         private System.Windows.Forms.Label label18;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button btnUpdateAcc;
     }
 }
 

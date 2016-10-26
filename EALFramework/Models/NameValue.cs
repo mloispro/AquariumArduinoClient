@@ -4,9 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EALFramework
+namespace EALFramework.Models
 {
-    public class Class1
+    public class NameValue<T,H>
     {
+        public T Name { get; set; }
+        public H Value { get; set; }
     }
 }
