@@ -350,6 +350,8 @@ namespace AquariumArduinoClient
             {
                 string controllerIP = _settings.ControllerIP.Replace(" ", "");
                 string msg = await AquaController.SendControllerData(controllerIP, data, runNow);
+                Logging.Log(msg);
+                Status.SetStatus(msg);
             }
             catch (Exception ex)
             {
@@ -565,7 +567,7 @@ namespace AquariumArduinoClient
 
             AquaController.SaveRunData();
             SendControllerData(data);
-           
+            DataBindUIAccInfoData(true);
         }
 
         private void cbContrAccInfo_SelectedIndexChanged(object sender, EventArgs e)
@@ -574,11 +576,11 @@ namespace AquariumArduinoClient
         }
 
 
-        private void DataBindUIAccInfoData()
+        private void DataBindUIAccInfoData(bool force=false)
         {
             lblAccRunInfo.Text = "";
 
-            GetControllerData();
+            GetControllerData(force);
 
             AquaControllerCmd cmd = (AquaControllerCmd)cbContrAccInfo.SelectedItem;
             var runDataList = AquaController.GetAllRunData();
@@ -613,11 +615,12 @@ namespace AquariumArduinoClient
 
             RunData data = runDataList.Find(x => x.accType == cmd.AccTypeMap);
             SendControllerData(data, true);
+            DataBindUIAccInfoData(true);
         }
 
         private void btnRefresh_Click(object sender, EventArgs e)
         {
-            GetControllerData(true);
+            DataBindUIAccInfoData(true);
         }
 
 
