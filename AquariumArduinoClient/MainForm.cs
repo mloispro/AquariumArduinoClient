@@ -123,8 +123,8 @@ namespace AquariumArduinoClient
             timerGetControllerData.Start();
             Status.SetStatus("Getting controller data, please wait...");
             
-            DataBindUIControllerData();
-            DataBindUIAccInfoData();
+            //DataBindUIControllerData();
+            //DataBindUIAccInfoData();
             //GetSensorData();
             // SetupComm();
 
@@ -350,8 +350,13 @@ namespace AquariumArduinoClient
             {
                 string controllerIP = _settings.ControllerIP.Replace(" ", "");
                 string msg = await AquaController.SendControllerData(controllerIP, data, runNow);
+                
                 Logging.Log(msg);
-                Status.SetStatus(msg);
+                Status.SetStatus("Controller will update in 45 secinds..");
+
+                await Task.Delay(45000);
+                DataBindUIControllerData(true);
+
             }
             catch (Exception ex)
             {
@@ -438,7 +443,6 @@ namespace AquariumArduinoClient
         private void timerGetControllerData_Tick(object sender, EventArgs e)
         {
             DataBindUIControllerData();
-            DataBindUIAccInfoData();
         }
         private void tbSensorIP1_Leave(object sender, EventArgs e)
         {
@@ -487,11 +491,16 @@ namespace AquariumArduinoClient
             DataBindUIControllerData();
         }
 
-        private void DataBindUIControllerData()
+        private void DataBindUIControllerData(bool force=false)
         {
-            GetControllerData();
+            GetControllerData(force);
+
+            DataBindUIAccInfoData();
 
             AquaControllerCmd cmd = (AquaControllerCmd)cbContrAccUpdate.SelectedItem;
+
+            if (cmd == null) return;
+
             if (cmd.TheAccType == AquaControllerCmd.AccType.WaterPump ||
               cmd.TheAccType == AquaControllerCmd.AccType.DryDoser) //putting dry doser here for now, not sure how run ever works on arduino for dry doser.
             { 
@@ -526,7 +535,7 @@ namespace AquariumArduinoClient
                 cmd.TheAccType == AquaControllerCmd.AccType.DryDoser) //putting dry doser here for now, not sure how run ever works on arduino for dry doser.
             {
                 //var runEvery = AquaControllerCmd.PumpRunEveryInHrs.Find(x => x.Value == data.GetRunEvery().TotalHours);
-                var runEvery = AquaControllerCmd.PumpRunEveryInHrs.FindClosest(data.GetRunEvery().TotalHours);
+                var runEvery = AquaControllerCmd.PumpRunEveryInHrs.FindClosest(data.GetRunEvery().TotalSeconds);
                 cbRunEvery.Text = runEvery.Name;
 
                 var dur = AquaControllerCmd.PumpRunDur.FindClosest(data.runDurration);
@@ -534,7 +543,7 @@ namespace AquariumArduinoClient
             }
             else
             {
-                var runEvery = AquaControllerCmd.MicrosMacrosRunEveryInHrs.FindClosest(data.runEvery);
+                var runEvery = AquaControllerCmd.MicrosMacrosRunEveryInHrs.FindClosest(data.GetRunEvery().TotalSeconds);
                 if (runEvery != null)
                 {
                     cbRunEvery.Text = runEvery.Name;
@@ -566,21 +575,19 @@ namespace AquariumArduinoClient
             data.runEvery = re.Value;
 
             AquaController.SaveRunData();
-            SendControllerData(data);
-            DataBindUIAccInfoData(true);
+            SendControllerData(data, true);
+            
         }
 
         private void cbContrAccInfo_SelectedIndexChanged(object sender, EventArgs e)
         {
-            DataBindUIAccInfoData();
+            DataBindUIControllerData();
         }
 
 
-        private void DataBindUIAccInfoData(bool force=false)
+        private void DataBindUIAccInfoData()
         {
             lblAccRunInfo.Text = "";
-
-            GetControllerData(force);
 
             AquaControllerCmd cmd = (AquaControllerCmd)cbContrAccInfo.SelectedItem;
             var runDataList = AquaController.GetAllRunData();
@@ -615,12 +622,12 @@ namespace AquariumArduinoClient
 
             RunData data = runDataList.Find(x => x.accType == cmd.AccTypeMap);
             SendControllerData(data, true);
-            DataBindUIAccInfoData(true);
+            
         }
 
         private void btnRefresh_Click(object sender, EventArgs e)
         {
-            DataBindUIAccInfoData(true);
+            DataBindUIControllerData(true);
         }
 
 

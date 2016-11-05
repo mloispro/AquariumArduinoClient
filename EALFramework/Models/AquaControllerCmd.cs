@@ -34,15 +34,15 @@ namespace EALFramework.Models
         public static List<string> PumpRunDur = new List<string> { "30", "60", "90", "120" };
 
         public static List<NameValue<string, int>> MicrosMacrosRunEveryInHrs = new List<NameValue<string, int>> {
-            new NameValue<string, int> {Name= "Daily", Value =24 },
-            new NameValue<string, int> {Name= "Every Other Day", Value =48 }
+            new NameValue<string, int> {Name= "Daily", Value =86400 },
+            new NameValue<string, int> {Name= "Every Other Day", Value =172800 }
 
         };
         public static List<NameValue<string, int>> PumpRunEveryInHrs = new List<NameValue<string, int>> {
-            new NameValue<string, int> {Name= "Weekly", Value =168 },
-            new NameValue<string, int> {Name= "Every Other Week", Value =336 },
-            new NameValue<string, int> {Name= "Every Three Weeks", Value =504 },
-            new NameValue<string, int> {Name= "Monthly", Value =672 }
+            new NameValue<string, int> {Name= "Weekly", Value =604800 },
+            new NameValue<string, int> {Name= "Every Other Week", Value =1209600 },
+            new NameValue<string, int> {Name= "Every Three Weeks", Value =1814400 },
+            new NameValue<string, int> {Name= "Monthly", Value =2419200 }
 
         };
 

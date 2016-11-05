@@ -130,8 +130,7 @@ namespace EALFramework.Controllers
             {
 
                 System.Net.WebClient wc = new System.Net.WebClient();
-
-                //todo: implement this
+                
                 foreach (var cmd in AquaControllerCmd.Cmds)
                 {
                     string webData = wc.DownloadString(string.Format("http://{0}{1}", site, cmd.CheckCmd));
@@ -159,10 +158,11 @@ namespace EALFramework.Controllers
 
                 string url = AquaControllerCmd.FillTemplate(site, data, runNow);
 
-                //todo: uncomment
                 string webData = wc.DownloadString(url);
                 var message = RunDataMessage.Deserialize(webData);
                 msg = message.msg;
+
+                //msg = url;
 
             });
             return msg;
