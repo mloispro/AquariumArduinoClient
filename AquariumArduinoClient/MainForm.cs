@@ -64,9 +64,14 @@ namespace AquariumArduinoClient
             //lblPH.ForeColor = Color.Red;
             tbGetSenValsEvery.Text = _settings.GetSensorValsEvery.ToString();
             tbGetContValsEvery.Text = _settings.GetControllerValsEvery.ToString();
+            tbGetROSenValsEvery.Text = _settings.GetROSensorValsEvery.ToString();
             if (_settings.GetSensorValsEvery > 0)
             {
                 timerGetSensorData.Interval = _settings.GetSensorValsEvery * 60 * 1000;
+            }
+            if (_settings.GetROSensorValsEvery > 0)
+            {
+                timerGetROSensorData.Interval = _settings.GetROSensorValsEvery * 60 * 1000;
             }
             if (_settings.GetControllerValsEvery > 0)
             {
@@ -91,6 +96,22 @@ namespace AquariumArduinoClient
                 ControlHelpers.ShowMessageBox("Sensor Ip not set.");
             }
 
+            if (!string.IsNullOrWhiteSpace(_settings.ROSensorIP))
+            {
+                List<string> ipSplit = _settings.ROSensorIP.Split('.').ToList();
+                if (ipSplit.Count > 0)
+                {
+                    tbROSensorIP1.Text = ipSplit[0];
+                    tbROSensorIP2.Text = ipSplit[1];
+                    tbROSensorIP3.Text = ipSplit[2];
+                    tbROSensorIP4.Text = ipSplit[3];
+                }
+            }
+            else
+            {
+                ControlHelpers.ShowMessageBox("RO Sensor Ip not set.");
+            }
+
             //populate controller data
             if (!string.IsNullOrWhiteSpace(_settings.ControllerIP))
             {
@@ -107,6 +128,14 @@ namespace AquariumArduinoClient
             {
                 ControlHelpers.ShowMessageBox("Controller Ip not set.");
             }
+            if (!_settings.AquariumNames.Any())
+            {
+                _settings.AquariumNames.Add(new NameValue<string, int> { Name = "Aqua 1", Value = 0 });
+                Settings.Save(_settings);
+            }
+            cbTankName.DataSource = _settings.AquariumNames;
+            cbTankName.DisplayMember = "Name";
+
             cbContrAccInfo.DataSource = AquaControllerCmd.Cmds;
             cbContrAccInfo.DisplayMember = "Name";
 
@@ -120,9 +149,10 @@ namespace AquariumArduinoClient
             cbRunEvery.DisplayMember = "Name";
 
             timerGetSensorData.Start();
+            timerGetROSensorData.Start();
             timerGetControllerData.Start();
             Status.SetStatus("Getting controller data, please wait...");
-            
+
             //DataBindUIControllerData();
             //DataBindUIAccInfoData();
             //GetSensorData();
@@ -130,17 +160,32 @@ namespace AquariumArduinoClient
 
         }
 
-        
-        private async void GetSensorData()
+
+        private async void GetSensorData(bool isROSensor = false, bool hasPHSensor = true)
         {
-
-
-            if (string.IsNullOrWhiteSpace(_settings.SensorIP))
+            string sensorIP = "";
+            string sensorTxt = "";
+            
+            if (isROSensor)
             {
-                //ControlHelpers.ShowMessageBox("Sensor Ip not set.");
-                return;
+                if (string.IsNullOrWhiteSpace(_settings.ROSensorIP))
+                {
+                    //ControlHelpers.ShowMessageBox("Sensor Ip not set.");
+                    return;
+                }
+                sensorIP = _settings.ROSensorIP.Replace(" ", "");
+                sensorTxt = "RO";
             }
-            string sensorIP = _settings.SensorIP.Replace(" ", "");
+            else
+            {
+                if (string.IsNullOrWhiteSpace(_settings.SensorIP))
+                {
+                    //ControlHelpers.ShowMessageBox("Sensor Ip not set.");
+                    return;
+                }
+                sensorIP = _settings.SensorIP.Replace(" ", "");
+            }
+
 
             try
             {
@@ -150,35 +195,59 @@ namespace AquariumArduinoClient
                     System.Net.WebClient wc = new System.Net.WebClient();
 
                     string webData = wc.DownloadString(string.Format("http://{0}/GetSensorVals", sensorIP));
-                    //string webData = "{\r\n\"host\":\"WaterSensor-1\",\r\n\"ph\":4,\r\n\"tds\":400,\r\n\"phOffset\":3.10,\r\n\"tdsOffset\":1310,\r\n\"reading\":\"ph\",\r\n\"readingDur\":\"115s\",\r\n\"readingInter\":\"600s\"\r\n}\r\n";
-                    WaterSensorData vals = WaterSensorData.Log(webData);
-                    
-                    Status.SetStatus("Retrieved sensor vals");
-                    if (vals.reading == "ph")
+                    //string webData = FileIO.GetFileText(@"C:\Users\lenovo\downloads\WaterSensor.json");
+                    //string webData = FileIO.GetFileText(@"C:\Users\lenovo\downloads\ROController.json");
+                    WaterSensorData vals = WaterSensorData.Log(webData, isROSensor, hasPHSensor);
+
+                    Status.SetStatus("Retrieved {0} sensor vals", sensorTxt);
+                    if (!hasPHSensor)
                     {
-                        Logging.Log("Retrieved TDS sensor vals");
-                        lblTDS.SetControlText("TDS: " + vals.tds.ToString());
+                        Logging.Log("Retrieved {0} TDS sensor vals", sensorTxt);
+                        if(!isROSensor)
+                            lblTDS.SetControlText("TDS: " + vals.tds.ToString());
+                        else
+                            lblRoTds.SetControlText("TDS: " + vals.tds.ToString());
+                    }
+                    else if (vals.reading == "ph")
+                    {
+                        Logging.Log("Retrieved {0} TDS sensor vals", sensorTxt);
+                        if (!isROSensor)
+                            lblTDS.SetControlText("TDS: " + vals.tds.ToString());
+                        else
+                            lblRoTds.SetControlText("TDS: " + vals.tds.ToString());
                     }
                     else
                     {
-                        Logging.Log("Retrieved PH sensor vals");
-                        lblPH.SetControlText("PH: " + vals.ph.ToString());
+                        Logging.Log("Retrieved {0} PH sensor vals", sensorTxt);
+                       
+                        if (!isROSensor)
+                            lblPH.SetControlText("PH: " + vals.ph.ToString());
+                        else
+                            lblRoPH.SetControlText("PH: " + vals.ph.ToString());
                     }
-                    _settings.PHSettings.Offset = vals.phOffset;
-                    _settings.TDSSettings.Offset = vals.tdsOffset;
-                    tbPHOffset.SetControlText(vals.phOffset.ToString());
-                    tbTDSOffset.SetControlText(vals.tdsOffset.ToString());
+
+                    if (isROSensor)
+                    {
+                    }
+                    else
+                    {
+                        _settings.PHSettings.Offset = vals.phOffset;
+                        _settings.TDSSettings.Offset = vals.tdsOffset;
+                        tbPHOffset.SetControlText(vals.phOffset.ToString());
+                        tbTDSOffset.SetControlText(vals.tdsOffset.ToString());
+                    }
                 });
             }
             catch (Exception ex)
             {
                 Logging.LogError(ex.Message);
-                Status.SetStatus("Failed to get sensor vals", Status.StatusType.ConnError);
+                Status.SetStatus("Failed to get {0} sensor vals", Status.StatusType.ConnError, sensorTxt);
             }
         }
 
         private async void GetControllerData(bool force=false)
         {
+            return;//todo: remove this when controller webserver is fixed.
             if (string.IsNullOrWhiteSpace(_settings.ControllerIP))
             {
                 ControlHelpers.ShowMessageBox("Controller Ip not set.");
@@ -309,6 +378,9 @@ namespace AquariumArduinoClient
         }
         private async void SendTDSOffset()
         {
+            //todo:fix this method
+            return;
+
             var offsetString = tbTDSOffset.Text;
             if (string.IsNullOrWhiteSpace(offsetString))
             {
@@ -371,6 +443,9 @@ namespace AquariumArduinoClient
         }
         private async void SendPHOffset()
         {
+            //todo:fix this method
+            return;
+
             var offsetString = tbPHOffset.Text;
             if (string.IsNullOrWhiteSpace(offsetString))
             {
@@ -444,12 +519,13 @@ namespace AquariumArduinoClient
         {
             DataBindUIControllerData();
         }
+       
         private void tbSensorIP1_Leave(object sender, EventArgs e)
         {
             string sensorIp = tbSensorIP1.Text + "." + tbSensorIP2.Text + "." + tbSensorIP3.Text + "." + tbSensorIP4.Text;
             _settings.SensorIP = sensorIp;
-            Settings.Save(_settings);
 
+            Settings.Save(_settings);
         }
         private void tbContIP1_Leave(object sender, EventArgs e)
         {
@@ -461,7 +537,41 @@ namespace AquariumArduinoClient
         private void btnRead_Click(object sender, EventArgs e)
         {
             GetSensorData();
+            
         }
+
+        private void btnRORead_Click(object sender, EventArgs e)
+        {
+            GetSensorData(true,false);
+        }
+
+        #region RO Tank Settings
+
+        private void tbROSensorIP1_Leave(object sender, EventArgs e)
+        {
+            string sensorIp = tbROSensorIP1.Text + "." + tbROSensorIP2.Text + "." + tbROSensorIP3.Text + "." + tbROSensorIP4.Text;
+            _settings.ROSensorIP = sensorIp;
+
+            Settings.Save(_settings);
+        }
+
+        private void tbGetROSenValsEvery_TextChanged(object sender, EventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(tbGetROSenValsEvery.Text)) return;
+            _settings.GetROSensorValsEvery = int.Parse(tbGetROSenValsEvery.Text);
+            Settings.Save(_settings);
+            if (_settings.GetROSensorValsEvery > 0)
+            {
+                timerGetROSensorData.Interval = _settings.GetROSensorValsEvery * 60 * 1000;
+            }
+        }
+
+        private void timerGetROSensorData_Tick(object sender, EventArgs e)
+        {
+            GetSensorData(true,false);
+        }
+
+        #endregion RO Tank Settings
 
         private void tbGetSenValsEvery_Leave(object sender, EventArgs e)
         {
@@ -629,6 +739,32 @@ namespace AquariumArduinoClient
         {
             DataBindUIControllerData(true);
         }
+
+        private void cbTankName_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            var selectedAquarium = _settings.AquariumNames.Find(x => x.Value == cbTankName.SelectedIndex);
+            WaterSensorController.CurrentAquariumName = selectedAquarium.Name; //todo: refresh aquarium name on form, use WaterSensorController.CurrentAquariumName for website
+        }
+
+        #region New Tank Dialog
+
+        private void btnAddTank_Click(object sender, EventArgs e)
+        {
+            NewTankDialog dialog = new NewTankDialog();
+            dialog.ShowDialog(this);
+        }
+
+       
+
+
+
+        #endregion New Tank Dialog
+
+
+
+
+
+
 
 
 

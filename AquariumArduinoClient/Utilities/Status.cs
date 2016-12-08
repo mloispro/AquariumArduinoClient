@@ -29,6 +29,17 @@ namespace AquariumArduinoClient.Utilities
             _statusBar.SetControlText(_connStatus, "...");
             _statusBar.SetControlText(_message, "");
         }
+
+        public static void SetStatus(string msg, params object[] args)
+        {
+            SetStatus(string.Format(msg, args), StatusType.Info);
+        }
+
+        public static void SetStatus(string msg, StatusType statusType = StatusType.Info, params object[] args)
+        {
+            SetStatus(string.Format(msg, args), statusType);
+        }
+
         public static void SetStatus(string msg, StatusType statusType=StatusType.Info)
         {
             if (statusType == StatusType.ConnError)

@@ -64,7 +64,7 @@ namespace AquariumArduinoClient.Test
                 double aDec = double.Parse(dec);
                 var phVal = phStart * aDec;
                 var pastDate = DateTime.Now.AddMinutes(Globals.SaveLogEveryMin * i * -1);
-                WaterSensorController._rawPHLogs.Add(new PHLog(phVal, pastDate));
+                WaterSensorController._rawPHLogs.Add(new PHLog { PhVal = phVal, LogDate = pastDate });
             }
 
             var hourlyAvg = WaterSensorController.GetHourlyPhAverage();
@@ -83,11 +83,11 @@ namespace AquariumArduinoClient.Test
                 string dec = "1." + i;
                 double aDec = double.Parse(dec);
                 var phVal = phStart * aDec;
-                WaterSensorController.LogPh(phVal);
+                WaterSensorController.Log<PHLog>(phVal);
                 Thread.Sleep((int)Globals.SaveLogEveryMin * 60 * 1000 + 500);
             }
 
-            var phLogs = WaterSensorController.GetPHLogs();
+            var phLogs = WaterSensorController.GetLogs<PHLog>();
             Assert.IsTrue(phLogs.Count > 0);
 
         }

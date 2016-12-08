@@ -16,7 +16,16 @@ namespace EALFramework.Utils
 {
     public class FileIO : IDisposable
     {
-      
+        public static string GetFileText(string path)
+        {
+            string txt = "";
+
+            using (var file = File.OpenText(path))
+            {
+                txt = file.ReadToEnd();
+            }
+                return txt;
+        }
         public static string GetTopLevelFolder(string path)
         {
             string folder = "";

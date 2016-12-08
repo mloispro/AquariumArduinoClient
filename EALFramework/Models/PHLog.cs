@@ -6,21 +6,38 @@ using System.Threading.Tasks;
 
 namespace EALFramework.Models
 {
-    public class PHLog
+
+    public class PHLog : SensorValLog
     {
-        
-        public DateTime LogDate { get; set; }
-        public double PhVal { get; set; }
-
-        public PHLog()
+        public double PhVal
         {
+            get { return base.Val; }
+            set { base.Val = value; }
         }
-        public PHLog(double phVal, DateTime logDate)
-        {
-            this.PhVal = phVal;
-            this.LogDate = logDate;
-        }
-
+        public PHLog() : base() { }
 
     }
+
+    //public class PHLog : PHLog<PHLog>
+    //{
+    //    public PHLog() : base() { }
+    //}
+
+
+    //public class PHLog<T> : SensorValLog<T> where T : SensorValLog, new()
+    //{
+    //    public double PhVal
+    //    {
+    //        get { return base.Val; }
+    //        set { base.Val = value; }
+    //    }
+    //    public PHLog() : base() { }
+
+    //    //public PHLog(double phVal, DateTime logDate)
+    //    //{
+    //    //    this.PhVal = phVal;
+    //    //    this.LogDate = logDate;
+    //    //}
+
+    //}
 }

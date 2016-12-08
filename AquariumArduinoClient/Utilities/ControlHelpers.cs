@@ -291,5 +291,20 @@ namespace AquariumArduinoClient.Utilities
             var knownKeys = new HashSet<TKey>();
             return source.Where(element => knownKeys.Add(keySelector(element)));
         }
+
+        public static IEnumerable<T> GetControls<T>(this Control control)
+        {
+            var type = typeof(T);
+            var allControls = GetControls(control);
+     
+            return allControls.Where(c => c.GetType() == type).Cast<T>();
+        }
+
+        private static IEnumerable<Control> GetControls(this Control control)
+        {
+            var controls = control.Controls.Cast<Control>();
+            return controls.SelectMany(c => GetControls(c))
+              .Concat(controls);
+        }
     }
 }

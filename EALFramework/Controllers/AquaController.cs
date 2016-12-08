@@ -100,21 +100,12 @@ namespace EALFramework.Controllers
 
         public static RunData Deserialize(string json)
         {
-            var settings = new JsonSerializerSettings
-            {
-                NullValueHandling = NullValueHandling.Ignore,
-                MissingMemberHandling = MissingMemberHandling.Ignore,
-                Error = HandleDeserializationError
-            };
+            var settings = Helpers.GetSerializerSettings();
 
             RunData obj = JsonConvert.DeserializeObject<RunData>(json, settings);
             return obj;
         }
-        public static void HandleDeserializationError(object sender, ErrorEventArgs errorArgs)
-        {
-            var currentError = errorArgs.ErrorContext.Error.Message;
-            errorArgs.ErrorContext.Handled = true;
-        }
+       
         public static async Task<string> GetControllerData(string site,bool force= false)
         {
             string msg = "";

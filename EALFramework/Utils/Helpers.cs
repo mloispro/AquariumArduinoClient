@@ -5,11 +5,21 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Reflection;
 using EALFramework.Models;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace EALFramework.Utils
 {
     public static class Helpers
     {
+
+        public static int ConvSecString(this string secString)
+        {
+            secString = secString.Replace("s", "");
+            int secs = int.Parse(secString);
+            return secs;
+        }
+
         public static DateTime ConvArduinoTimeToDT(this int time)
         {
             var newdt = new DateTime(1970, 1, 1, 0, 0, 0, 0).AddSeconds(time);
@@ -71,6 +81,23 @@ namespace EALFramework.Utils
             }
             
             return url;
+        }
+
+        public static JsonSerializerSettings GetSerializerSettings()
+        {
+            var settings = new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore,
+                MissingMemberHandling = MissingMemberHandling.Ignore,
+                //Error = HandleDeserializationError
+            };
+
+            return settings;
+        }
+        private static void HandleDeserializationError(object sender, ErrorEventArgs errorArgs)
+        {
+            var currentError = errorArgs.ErrorContext.Error.Message;
+            errorArgs.ErrorContext.Handled = true;
         }
     }
 }

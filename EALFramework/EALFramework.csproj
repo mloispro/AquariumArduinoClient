@@ -48,6 +48,8 @@
     <Compile Include="Controllers\WaterSensorController.cs" />
     <Compile Include="Models\AquaControllerCmd.cs" />
     <Compile Include="Models\NameValue.cs" />
+    <Compile Include="Models\SensorValLogBag.cs" />
+    <Compile Include="Models\SensorValLog.cs" />
     <Compile Include="Models\RunData.cs" />
     <Compile Include="Models\TDSLog.cs" />
     <Compile Include="Models\PHLog.cs" />

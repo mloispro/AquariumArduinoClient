@@ -6,21 +6,27 @@ using System.Threading.Tasks;
 
 namespace EALFramework.Models
 {
-    public class TDSLog
+    public class TDSLog : SensorValLog
     {
-        
-        public DateTime LogDate { get; set; }
-        public double TdsVal { get; set; }
-
-        public TDSLog()
+        public double TdsVal
         {
+            get { return base.Val; }
+            set { base.Val = value; }
         }
-        public TDSLog(double phVal, DateTime logDate)
-        {
-            this.TdsVal = phVal;
-            this.LogDate = logDate;
-        }
-
-
+        public TDSLog() : base() { }
     }
+
+    //public class TDSLog<T> : SensorValLog<T> where T : SensorValLog, new()
+    //{
+    //    public double TdsVal
+    //    {
+    //        get { return base.Val; }
+    //        set { base.Val = value; }
+    //    }
+    //    public TDSLog() : base() { }
+    //}
+    //public class TDSLog : TDSLog<TDSLog>
+    //{
+    //    public TDSLog() : base() { }
+    //}
 }

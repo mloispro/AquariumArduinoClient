@@ -13,3 +13,4 @@ C:\Projects\AquariumArduinoClient\AquariumArduinoClient\obj\Release\AquariumArdu
 C:\Projects\AquariumArduinoClient\AquariumArduinoClient\obj\Release\AquariumArduinoClient.csproj.GenerateResource.Cache
 C:\Projects\AquariumArduinoClient\AquariumArduinoClient\obj\Release\AquariumArduinoClient.exe
 C:\Projects\AquariumArduinoClient\AquariumArduinoClient\obj\Release\AquariumArduinoClient.pdb
+C:\Projects\AquariumArduinoClient\AquariumArduinoClient\obj\Release\AquariumArduinoClient.NewTankDialog.resources

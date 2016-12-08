@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 using AquariumArduinoClient.Models;
 using EALFramework.Utils;
 using System.Threading;
+using EALFramework.Models;
 
 namespace AquariumArduinoClient.Utilities
 {
@@ -21,9 +22,12 @@ namespace AquariumArduinoClient.Utilities
         public string UserSettingsDir;
         public string AppDir;
         public string SensorIP;
+        public string ROSensorIP;
         public string ControllerIP;
         public int GetSensorValsEvery;
         public int GetControllerValsEvery;
+        public int GetROSensorValsEvery;
+        public List<NameValue<string, int>> AquariumNames = new List<NameValue<string, int>>();
         //public const string DefaultOpenVPNDirectory = @"C:\Program Files (x86)\OpenVPN";
         //public const string DefaultVPNBookConfigDownload = @"http://www.vpnbook.com/free-openvpn-account/VPNBook.com-OpenVPN-Euro1.zip";
         //public const string DefaultVPNBookCredsPage = @"http://www.vpnbook.com/freevpn";
