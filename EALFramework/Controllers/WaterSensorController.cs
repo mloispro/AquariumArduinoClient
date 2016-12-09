@@ -265,10 +265,10 @@ namespace EALFramework.Controllers
             return hourlyPhLogs;
         }
         //todo: change this to List<T>
-        public static List<PHLog> GetDailySummaryPhLogs()
+        public static List<PHLog> GetDailySummaryPhLogs(bool isROSensor = false)
         {
 
-            _rawPHLogs = GetLogs<PHLog>();
+            _rawPHLogs = GetLogs<PHLog>(isROSensor);
 
             var logs = _rawPHLogs.GroupBy(x => new DateTime(x.LogDate.Year, x.LogDate.Month, x.LogDate.Day, 0, 0, 0))
                   .Select(g => new PHLog
@@ -279,10 +279,10 @@ namespace EALFramework.Controllers
 
             return logs;
         }
-        public static List<PHLog> GetHourlySummaryPHLogs(int numOfDays)
+        public static List<PHLog> GetHourlySummaryPHLogs(int numOfDays, bool isROSensor=false)
         {
 
-            _rawPHLogs = GetLogs<PHLog>();
+            _rawPHLogs = GetLogs<PHLog>(isROSensor);
 
             var logs = _rawPHLogs.GroupBy(x => new DateTime(x.LogDate.Year, x.LogDate.Month, x.LogDate.Day, x.LogDate.Hour, 0, 0))
                   .Select(g => new PHLog
@@ -295,10 +295,10 @@ namespace EALFramework.Controllers
 
             return logs;
         }
-        public static List<TDSLog> GetDailySummaryTdsLogs()
+        public static List<TDSLog> GetDailySummaryTdsLogs(bool isROSensor = false)
         {
 
-            _rawTdsLogs = GetLogs<TDSLog>();
+            _rawTdsLogs = GetLogs<TDSLog>(isROSensor);
 
             var logs = _rawTdsLogs.GroupBy(x => new DateTime(x.LogDate.Year, x.LogDate.Month, x.LogDate.Day, 0, 0, 0))
                   .Select(g => new TDSLog
@@ -309,10 +309,10 @@ namespace EALFramework.Controllers
 
             return logs;
         }
-        public static List<TDSLog> GetHourlySummaryTdsLogs(int numOfDays)
+        public static List<TDSLog> GetHourlySummaryTdsLogs(int numOfDays, bool isROSensor = false)
         {
 
-            _rawTdsLogs = GetLogs<TDSLog>();
+            _rawTdsLogs = GetLogs<TDSLog>(isROSensor);
 
             var logs = _rawTdsLogs.GroupBy(x => new DateTime(x.LogDate.Year, x.LogDate.Month, x.LogDate.Day, x.LogDate.Hour, 0, 0))
                   .Select(g => new TDSLog

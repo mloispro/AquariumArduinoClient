@@ -54,7 +54,7 @@ namespace AquariumArduinoClient
             //new PHLog().TestPhLogs();
             //return;
 
-            _settings = Utilities.Settings.Get();
+            _settings = Settings.Get();
 
             tbLowPH.Text = _settings.PHSettings.LowValue.ToString();
             tbHighPH.Text = _settings.PHSettings.HighValue.ToString();
@@ -357,13 +357,13 @@ namespace AquariumArduinoClient
         private void tbLowPH_TextChanged(object sender, EventArgs e)
         {
             _settings.PHSettings.LowValue = double.Parse(tbLowPH.Text);
-            Utilities.Settings.Save(_settings);
+            Settings.Save(_settings);
         }
 
         private void tbHighPH_TextChanged(object sender, EventArgs e)
         {
             _settings.PHSettings.HighValue = double.Parse(tbHighPH.Text);
-            Utilities.Settings.Save(_settings);
+            Settings.Save(_settings);
         }
 
       
@@ -391,7 +391,7 @@ namespace AquariumArduinoClient
 
             _settings.TDSSettings.Offset = offset;
 
-            Utilities.Settings.Save(_settings);
+            Settings.Save(_settings);
 
             try
             {
@@ -459,7 +459,7 @@ namespace AquariumArduinoClient
 
             _settings.PHSettings.Offset = offset;
 
-            Utilities.Settings.Save(_settings);
+            Settings.Save(_settings);
 
             try
             {

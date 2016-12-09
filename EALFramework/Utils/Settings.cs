@@ -5,14 +5,13 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Forms;
+//using System.Windows.Forms;
 using Newtonsoft.Json;
-using AquariumArduinoClient.Models;
 using EALFramework.Utils;
 using System.Threading;
 using EALFramework.Models;
 
-namespace AquariumArduinoClient.Utilities
+namespace EALFramework.Utils
 {
     public class Settings
     {

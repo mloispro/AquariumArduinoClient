@@ -208,3 +208,6 @@ C:\Projects\AquariumArduinoClient\AquariumArduinoWeb\obj\Release\Package\Package
 C:\Projects\AquariumArduinoClient\AquariumArduinoWeb\obj\Release\Package\PackageTmp\bin\roslyn\VBCSCompiler.exe
 C:\Projects\AquariumArduinoClient\AquariumArduinoWeb\obj\Release\Package\PackageTmp\bin\roslyn\VBCSCompiler.exe.config
 C:\Projects\AquariumArduinoClient\AquariumArduinoWeb\obj\Release\Package\PackageTmp\Web.config
+C:\Projects\AquariumArduinoClient\AquariumArduinoWeb\obj\Release\Package\PackageTmp\Views\ROTank\_SensorCharts.cshtml
+C:\Projects\AquariumArduinoClient\AquariumArduinoWeb\obj\Release\Package\PackageTmp\Views\ROTank\Index.cshtml
+C:\Projects\AquariumArduinoClient\AquariumArduinoWeb\obj\Release\Package\PackageTmp\Views\Shared\_SelectTank.cshtml

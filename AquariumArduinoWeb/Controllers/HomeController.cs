@@ -7,6 +7,9 @@ using System.Web.Mvc;
 using Chart.Mvc.ComplexChart;
 using EALFramework.Models;
 using AquariumArduinoWeb.Models;
+using AquariumArduinoWeb.Utils;
+using EALFramework.Utils;
+
 
 namespace EALFramework.Controllers
 {
@@ -14,6 +17,8 @@ namespace EALFramework.Controllers
     {
         public ActionResult Index()
         {
+            var tanks = Settings.Get().AquariumNames;
+            WaterSensorController.CurrentAquariumName = tanks.First().Name;
             return View();
         }
         public ActionResult _SensorCharts()
@@ -56,6 +61,33 @@ namespace EALFramework.Controllers
             
 
             return model;
+        }
+
+        public ActionResult SetSelectedTank(SelectTankModel stm)
+        {
+            WaterSensorController.CurrentAquariumName = stm.SelectedTank.Text;
+            //var tanks = Settings.Get().AquariumNames;
+            //var slis = tanks.ToSelectListItems();
+            //var stm = new SelectTankModel { Tanks = slis };
+            return PartialView("_SelectTank", stm);
+        }
+
+        public ActionResult _SelectTank()
+        {
+            var tanks = Settings.Get().AquariumNames;
+            var selectedtank = tanks.Find(x => x.Name == WaterSensorController.CurrentAquariumName);
+            var st = selectedtank.ToSelectListItem();
+            var slis = tanks.ToSelectListItems();
+            foreach (var tank in slis)
+            {
+                if (tank.Value == st.Value)
+                {
+                    tank.Selected = true;
+                    break;
+                }
+            }
+            var stm = new SelectTankModel { Tanks = slis, SelectedTank=st };
+            return PartialView("_SelectTank", stm);
         }
 
         public ActionResult About()
